@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Прокачка персонажа</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&family=Rubik:ital,wght@0,300..900;1,300..900&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            font-family: 'Rubik', sans-serif;
+            width: 100%;
+            min-height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* фон */
+        .game-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .game-bg img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            pointer-events: none;
+        }
+
+        /* Контейнер книжки */
+        .book-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -52%);
+            width: 90vw;
+            max-width: 1200px;
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Изображение книжки */
+        .book-image {
+            width: 100%;
+            height: auto;
+            display: block;
+            object-fit: contain;
+        }
+
+        /* 3. МЕНЮ ПРОКАЧКИ (готовая картинка поверх книжки) */
+        .menu-image {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 50%;
+            height: auto;
+            z-index: 105;
+            pointer-events: none;
+        }
+
+        /* 4. ИНТЕРАКТИВНЫЕ ЭЛЕМЕНТЫ ПОВЕРХ МЕНЮ */
+        .upgrade-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 110;
+            pointer-events: none;
+        }
+
+        .interactive-area {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: auto;
+        }
+
+        /* Строка прокачки */
+        .upgrade-row {
+            position: absolute;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        
+        .stars-container {
+            position: absolute;
+            top: 433px;
+            left: 350px;
+            width: 40px;
+            display: flex;
+            transition: transform 0.2s;
+        }
+
+        .star-icon {
+            width: 60px;          /* ← размер звезды */
+            height: 60px;
+            object-fit: contain;
+        }
+
+        /* Стрелка созвездия */
+        .const-arrow {
+            position: absolute;
+            top: 433px;
+            left: 792px;    /* ← подбери нужное значение */
+            width: 60px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .const-arrow:hover {
+            transform: scale(1.1);
+        }
+
+        .const-arrow img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* Контейнер для прогресс-бара со стрелкой внутри */
+        .progress-wrapper {
+            position: relative;
+            width: 505px;           /* ширина прогресс-бара */
+            left: -240px;
+        }
+
+        .progress-bar-bg {
+            width: 100%;
+            height: 54px;
+            background: #C1A481;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: #4CAF50;
+            border-radius: 20px;
+            transition: width 0.3s;
+        }
+
+        /* Стрелка внутри прогресс-бара, прижата к правому краю */
+        .upgrade-arrow {
+            position: absolute;
+            right: -10px;            /* отступ от правого края */
+            top: 50%;
+            transform: translateY(-50%);
+            width: 60px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            z-index: 5;
+        }
+
+        .upgrade-arrow:hover {
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .upgrade-arrow img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* Позиционирование строк */
+        .row-level {
+            top: 199px;
+            left: 578px;
+        }
+
+        .row-skill {
+            top: 317px;
+            left: 578px;
+        }
+
+        /* Кнопка закрытия */
+        .close-btn {
+            position: absolute;
+            top: 80px;
+            right: 130px;
+            width: 65px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            z-index: 2000;
+        }
+
+        .close-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .close-btn img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .back-btn {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            background: #854D25;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            padding: 10px 25px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            z-index: 20;
+            font-size: 22px;
+        }
+        .back-btn:hover {
+            transform: scale(1.05);
+            background: #6b3d1f;
+        }
+
+    </style>
+</head>
+<body>
+    <!-- фон -->
+    <div class="game-bg">
+        <img src="images/MainScreen/общий фон.svg" alt="Фон">
+    </div>
+
+    <!-- кнопка назад -->
+    <button class="back-btn" id="backToBookBtn">← Назад к книжке</button>
+
+    <!-- книжка -->
+    <div class="book-container">
+        <img src="images/MainScreen/Book/книга открыта.svg" alt="Книжка" class="book-image">
+
+        <!-- меню прокачки -->
+        <img src="images/Book/общее меню прокачки.svg" alt="Меню прокачки" class="menu-image">
+
+        <!-- инт. элементы -->
+        <div class="upgrade-overlay">
+            <div class="interactive-area">
+
+                <!-- уровень персонажа -->
+                <div class="upgrade-row row-level">
+                    <div class="progress-wrapper">
+                        <div class="progress-bar-bg">
+                            <div class="progress-fill" id="levelFill"></div>
+                        </div>
+                        <div class="upgrade-arrow" id="levelUpBtn">
+                            <img src="images/Book/кнопка вверх.svg" alt="↑">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- уровень способности -->
+                <div class="upgrade-row row-skill">
+                    <div class="progress-wrapper">
+                        <div class="progress-bar-bg">
+                            <div class="progress-fill" id="skillFill"></div>
+                        </div>
+                        <div class="upgrade-arrow" id="skillUpBtn">
+                            <img src="images/Book/кнопка вверх.svg" alt="↑">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- созвездия -->
+                <div class="stars-container" id="starsContainer"></div>
+                <div class="const-arrow" id="constUpBtn">
+                    <img src="images/Book/кнопка вверх.svg" alt="↑">
+                </div>
+            </div>
+        </div>
+
+        <!-- крестик-->
+        <div class="close-btn" id="closeBtn">
+            <img src="images/MainScreen/Book/крестик.svg" alt="Закрыть">
+        </div>
+    </div>
+
+    <script src="js/soundManager.js"></script>
+
+    <script type="module">
+    import api from './js/apiClient.js';
+
+    function waitForSoundManager(cb) {
+        if (window.soundManager && window.soundManager.sounds.music.game) {
+            cb(window.soundManager);
+            return;
+        }
+        const timer = setInterval(() => {
+            if (window.soundManager && window.soundManager.sounds.music.game) {
+                clearInterval(timer);
+                cb(window.soundManager);
+            }
+        }, 50);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        waitForSoundManager(sm => {
+            sm.loadSettings();
+            const lastType = sessionStorage.getItem('musicType') || 'game';
+            if (!sm.currentMusic || sm.currentMusic.paused) {
+                sm.playMusic(lastType);
+            }
+        });
+    });
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const characterId = parseInt(urlParams.get('id'));
+
+    let currentCharacter = null;
+
+    async function loadCharacterData() {
+        try {
+            const userChars = await api.getUserCharacters();
+            const character = userChars.find(uc => uc.character_id === characterId);
+        
+            if (!character) {
+                alert('Персонаж не найден');
+                window.location.href = 'book.html';
+                return;
+            }
+        currentCharacter = character;
+    
+        updateLevelDisplay();
+        updateSkillDisplay();
+        updateConstDisplay(); 
+        } catch (error) {
+            console.error('Ошибка загрузки:', error);
+            alert('Не удалось загрузить данные персонажа');
+        }
+    }
+
+    function updateLevelDisplay() {
+        const level = currentCharacter.level || 1;
+        const maxLevel = 100;
+        const percent = (level / maxLevel) * 100;
+        const fill = document.getElementById('levelFill');
+        if (fill) fill.style.width = `${percent}%`;
+    }
+
+    function updateSkillDisplay() {
+        const skillLevel = currentCharacter.skill_level || 1;
+        const maxSkill = 100;
+        const percent = (skillLevel / maxSkill) * 100;
+        const fill = document.getElementById('skillFill');
+        if (fill) fill.style.width = `${percent}%`;
+    }
+
+    function updateConstDisplay() {
+        const constellation = currentCharacter.constellation || 0;
+        const maxConst = 5;
+        renderStars(constellation, maxConst);
+    }
+
+    function renderStars(activeStars, maxStars) {
+        const container = document.getElementById('starsContainer');
+        if (!container) return;
+    
+        container.innerHTML = '';
+    
+        // Показываем ТОЛЬКО активные звезды
+        for (let i = 0; i < activeStars; i++) {
+            const starImg = document.createElement('img');
+            starImg.src = 'images/Book/звезда соцветия.svg';
+            starImg.className = 'star-icon';
+            container.appendChild(starImg);
+        }
+    }
+
+    levelUpBtn.onclick = () => {
+        waitForSoundManager(sm => sm.navigate(`level-up.html?id=${currentCharacter.character_id}`, 'small'));
+    };
+
+    skillUpBtn.onclick = () => {
+        waitForSoundManager(sm => sm.navigate(`skill-up.html?id=${currentCharacter.character_id}`, 'small'));
+    };
+
+    constUpBtn.onclick = () => {
+        waitForSoundManager(sm => sm.navigate(`gacha.html`, 'small'));
+    };
+
+    closeBtn.onclick = () => {
+        waitForSoundManager(sm => sm.navigate(`game.html`, 'small'));
+    };
+
+    backToBookBtn.onclick = () => {
+        waitForSoundManager(sm => sm.navigate(`book.html`, 'big'));
+    };
+
+    loadCharacterData();
+    </script>
+</body>
+</html>

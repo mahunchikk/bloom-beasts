@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Повышение уровня</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&family=Rubik:ital,wght@0,300..900;1,300..900&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+
+        body {
+            font-family: 'Rubik', sans-serif;
+            width: 100%;
+            min-height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* фон */
+        .game-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .game-bg img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* книжка */
+        .book-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -52%);
+            width: 90vw;
+            max-width: 1200px;
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .book-image {
+            width: 100%;
+            height: auto;
+            display: block;
+            object-fit: contain;
+        }
+
+        /* картинка формы улучшения */
+        .upgrade-form-img {
+            position: absolute;
+            top: 55%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 50%;
+            height: auto;
+            z-index: 105;
+            pointer-events: none;
+        }
+
+        /* интерактивная область */
+        .interactive-panel {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 200;
+            pointer-events: none;
+        }
+
+        .controls {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: auto;
+        }
+
+        /* два текста уровня (есть/надо) */
+        .level-container {
+            position: absolute;
+            top: 238px;
+            left: 587px;
+            transform: translateX(-50%);
+            width: 80%;
+            display: flex;
+            justify-content: center;
+            gap: 100px;
+            align-items: center;
+            font-size: 28px;
+            font-weight: bold;
+            color: #854D25;
+        }
+
+        .current-level {
+            position: relative;
+            left: 0px;   
+        }
+
+        .target-level {
+            position: relative;
+            right: 0px;   
+        }
+
+        /* прогресс-бар */
+        .progress-bar-bg {
+            position: absolute;
+            top: 288px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 45%;
+            height: 54px;
+            background: #C1A481;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: #4CAF50;
+            border-radius: 20px;
+            transition: width 0.3s;
+        }
+
+        /* кнопки +  –  max */
+        .level-buttons {
+            position: absolute;
+            top: 397px;
+            left: 60%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+        }
+
+        .level-btn-img {
+            width: 55px;
+            height: 55px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .level-btn-img:hover {
+            transform: scale(1.05);
+        }
+
+        /* панель валюты (нужно/есть)*/
+        .currency-panel-cost {
+            position: absolute;
+            top: 397px;
+            left: 479px;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 8px 20px;
+            border-radius: 60px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #854D25;
+            white-space: nowrap;
+        }
+
+        .cost-slash {
+            font-size: 24px;
+            margin: 0 6px;
+        }
+
+        /* кнопка улучшить */
+        .upgrade-confirm-img {
+            position: absolute;
+            bottom: 82px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 265px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            z-index: 2000;
+        }
+
+        .upgrade-confirm-img:hover {
+           transform: translateX(-50%) scale(1.05);
+        }
+
+        /* крестик закрытия */
+        .close-form-btn {
+            position: absolute;
+            top: 80px;
+            right: 130px;
+            width: 65px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            z-index: 2000;
+        }
+
+        .close-form-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .close-form-btn img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* кнопка назад */
+        .back-btn {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            background: #854D25;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            padding: 10px 25px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            z-index: 20;
+            font-size: 22px;
+        }
+
+        .back-btn:hover {
+            transform: scale(1.05);
+            background: #6b3d1f;
+        }
+
+        @keyframes buffFloat {
+            0%   { opacity: 1; transform: translateX(-50%) translateY(0); }
+            80%  { opacity: 1; }
+            100% { opacity: 0; transform: translateX(-50%) translateY(-60px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-bg">
+        <img src="images/MainScreen/общий фон.svg" alt="Фон">
+    </div>
+
+    <button class="back-btn" id="backBtn">← Назад в меню</button>
+
+    <div class="book-container">
+        <img src="images/MainScreen/Book/книга открыта.svg" alt="Книжка" class="book-image">
+
+        <div class="close-form-btn" id="closeFormBtn">
+            <img src="images/MainScreen/Book/крестик.svg" alt="Закрыть">
+        </div>
+
+        <img src="images/Book/прокачка способностей.svg" alt="Форма улучшения" class="upgrade-form-img">
+
+        <div class="interactive-panel">
+            <div class="controls">
+                <!-- два текста уровня было/стало -->
+                <div class="level-container">
+                    <span class="current-level" id="currentLevelText">Lv100</span>
+                    <span class="target-level" id="targetLevelText">Lv100</span>
+                </div>
+
+                <!-- прогресс-бар -->
+                <div class="progress-bar-bg">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+
+                <!-- кнопки +  – max -->
+                <div class="level-buttons">
+                    <img src="images/Book/минус.svg" alt="-" class="level-btn-img" id="decrementBtn" style="position: absolute; left: -89px; top: 0;">
+                    <img src="images/Book/плюс.svg" alt="+" class="level-btn-img" id="incrementBtn" style="position: absolute; left: -153px; top: 0;">
+                    <img src="images/Book/максимум.svg" alt="MAX" class="level-btn-img" id="maxBtn" style="position: absolute; left: 5px; top: 0;">
+                </div>
+
+                <!-- панель валюты  -->
+                <div class="currency-panel-cost">
+                    <span id="costNeeded">0</span>
+                    <span class="cost-slash">/</span>
+                    <span id="userCoinsValue">0</span>
+                </div>
+
+                <!-- кнопка улучшить -->
+                <img src="images/Book/кнопка улучшить.svg" alt="Улучшить" class="upgrade-confirm-img" id="confirmUpgradeImg">
+            </div>
+        </div>
+    </div>
+
+    <script src="js/soundManager.js"></script>
+
+    <script type="module">
+        import api from './js/apiClient.js';
+ 
+        function waitForSoundManager(cb) {
+            if (window.soundManager && window.soundManager.sounds.music.game) {
+                cb(window.soundManager); return;
+            }
+            const timer = setInterval(() => {
+                if (window.soundManager && window.soundManager.sounds.music.game) {
+                    clearInterval(timer); cb(window.soundManager);
+                }
+            }, 50);
+        }
+ 
+        document.addEventListener('DOMContentLoaded', () => {
+            waitForSoundManager(sm => {
+                sm.loadSettings();
+                const lastType = sessionStorage.getItem('musicType') || 'game';
+                if (!sm.currentMusic || sm.currentMusic.paused) sm.playMusic(lastType);
+            });
+        });
+ 
+        const urlParams   = new URLSearchParams(window.location.search);
+        const characterId = parseInt(urlParams.get('id'));
+ 
+        let currentCharacter  = null;
+        let userCoins         = 0;
+        let currentSkillLevel = 1;
+        let targetSkillLevel  = 1;
+        const maxSkillLevel   = 100;
+ 
+        function showBuffToast(text, color) {
+            const toast = document.createElement('div');
+            toast.textContent = text;
+            toast.style.cssText = `
+                position: fixed;
+                top: 100px;
+                left: 50%;
+                z-index: 9999;
+                font-family: 'Rubik', sans-serif;
+                font-size: 22px;
+                font-weight: 700;
+                color: ${color || '#854D25'};
+                pointer-events: none;
+                animation: buffFloat 2s ease forwards;
+            `;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 2000);
+        }
+ 
+        async function loadData() {
+            try {
+                const userChars = await api.getUserCharacters();
+                currentCharacter = userChars.find(uc => uc.character_id === characterId);
+                if (!currentCharacter) {
+                    window.location.href = 'book.html';
+                    return;
+                }
+                const profile = await api.getProfile();
+                userCoins         = profile.user.coins || 0;
+                currentSkillLevel = currentCharacter.skill_level || 1;
+                targetSkillLevel  = currentSkillLevel;
+                updateUI();
+            } catch (error) {
+                console.error('Ошибка:', error);
+                showBuffToast('Ошибка загрузки', '#854D25');
+            }
+        }
+ 
+        function calculateCost(fromLevel, toLevel) {
+            let total = 0;
+            for (let i = fromLevel; i < toLevel; i++) {
+                total += 30 + (i - 1) * 8;
+            }
+            return total;
+        }
+ 
+        function updateUI() {
+            document.getElementById('currentLevelText').textContent = `Lv${currentSkillLevel}`;
+            document.getElementById('targetLevelText').textContent  = `Lv${targetSkillLevel}`;
+ 
+            const range   = maxSkillLevel - currentSkillLevel;
+            const percent = range > 0 ? ((targetSkillLevel - currentSkillLevel) / range) * 100 : 100;
+            document.getElementById('progressFill').style.width = `${Math.min(100, Math.max(0, percent))}%`;
+ 
+            const cost = calculateCost(currentSkillLevel, targetSkillLevel);
+            document.getElementById('costNeeded').textContent    = cost;
+            document.getElementById('userCoinsValue').textContent = userCoins;
+ 
+            const confirmImg = document.getElementById('confirmUpgradeImg');
+            const canUpgrade = targetSkillLevel > currentSkillLevel && userCoins >= cost;
+ 
+            confirmImg.style.opacity       = canUpgrade ? '1'      : '0.5';
+            confirmImg.style.filter        = canUpgrade ? 'none'    : 'grayscale(1)';
+            confirmImg.style.pointerEvents = canUpgrade ? 'auto'    : 'none';
+            confirmImg.style.cursor        = canUpgrade ? 'pointer' : 'not-allowed';
+        }
+ 
+        document.getElementById('incrementBtn').onclick = () => {
+            waitForSoundManager(sm => sm.playSfx('small'));
+            if (targetSkillLevel < maxSkillLevel) { targetSkillLevel++; updateUI(); }
+        };
+ 
+        document.getElementById('decrementBtn').onclick = () => {
+            waitForSoundManager(sm => sm.playSfx('small'));
+            if (targetSkillLevel > currentSkillLevel) { targetSkillLevel--; updateUI(); }
+        };
+ 
+        document.getElementById('maxBtn').onclick = () => {
+            waitForSoundManager(sm => sm.playSfx('small'));
+            targetSkillLevel = maxSkillLevel;
+            updateUI();
+        };
+
+        document.getElementById('confirmUpgradeImg').onclick = async () => {
+            waitForSoundManager(sm => sm.playSfx('big'));
+            const cost = calculateCost(currentSkillLevel, targetSkillLevel);
+            if (targetSkillLevel <= currentSkillLevel || userCoins < cost) return;
+ 
+            try {
+                for (let i = currentSkillLevel; i < targetSkillLevel; i++) {
+                    await api.upgradeCharacterSkill(characterId);
+                }
+                await api.updateQuest('skill_up', targetSkillLevel - currentSkillLevel);
+                showBuffToast('Способность улучшена!', '#854D25');
+                setTimeout(() => {
+                    window.location.href = `lvlup.html?id=${characterId}`;
+                }, 800);
+            } catch (error) {
+                console.error('Ошибка улучшения:', error);
+                showBuffToast('Ошибка при улучшении', '#854D25');
+            }
+        };
+ 
+        document.getElementById('closeFormBtn').onclick = () => {
+            waitForSoundManager(sm => sm.navigate('game.html', 'small'));
+        };
+ 
+        document.getElementById('backBtn').onclick = () => {
+            waitForSoundManager(sm => sm.navigate(`lvlup.html?id=${characterId}`, 'big'));
+        };
+ 
+        loadData();
+    </script>
+</body>
+</html>
+ 

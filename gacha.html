@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Гача</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@300..900&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            font-family: 'Rubik', sans-serif;
+            width: 100%;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .game-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .game-bg img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .game-content {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            height: 100vh;
+        }
+
+        .gacha-btn {
+            position: absolute;
+            bottom: 30px;
+            width: 260px;
+            cursor: pointer;
+            border: none;
+            background: #9AB46F;
+            border-radius: 60px;
+            border: 5px solid #503212;
+            padding: 20px 0;
+            transition: transform 0.2s ease, opacity 0.2s ease;
+            font-family: 'Rubik', sans-serif;
+        }
+
+        .gacha-btn:hover:not(:disabled) {
+            transform: scale(1.05);
+            background: rgba(89, 124, 79, 1);
+        }
+
+        .gacha-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-title {
+            font-size: 24px;
+            font-weight: 900;
+            color: #503212;
+            margin-bottom: 10px;
+        }
+
+        .btn-price {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-price img {
+            width: 28px;
+            height: auto;
+        }
+
+        .btn-price span {
+            font-size: 22px;
+            font-weight: 900;
+            color: white;
+        }
+
+        #btn1 { right: 350px; }
+        #btn10 { right: 50px; }
+
+        .back-btn {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            background: #854D25;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            padding: 10px 25px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            z-index: 20;
+            font-size: 22px;
+        }
+
+        .back-btn:hover {
+            transform: scale(1.05);
+            background: #6b3d1f;
+        }
+
+        /* вылюты */
+        .currency-seed { /* семечки */
+            position: absolute;
+            top: 10px;
+            right: 50px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(89, 124, 79, 1);
+            border-radius: 30px;
+            padding: 8px 20px;
+            width: 180px;
+            z-index: 10;
+        }
+
+        .currency-water { /* капля */
+            position: absolute;
+            top: 10px;
+            right: 250px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(89, 124, 79, 1);
+            border-radius: 30px;
+            padding: 8px 20px;
+            width: 180px;
+            z-index: 10;
+        }
+       
+        .currency-gold { /* звезда */
+            position: absolute;
+            top: 10px;
+            right: 450px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(89, 124, 79, 1);
+            border-radius: 30px;
+            padding: 8px 20px;
+            width: 180px;
+            z-index: 10;
+        }
+        .currency-water .currency-icon { width: 30px;  }
+        .currency-seed .currency-icon { width: 40px;  }
+        .currency-gold .currency-icon { width: 50px;  }
+
+        .currency-amount {
+            font-size: 24px;
+            font-family: 'Rubik', sans-serif;
+            font-weight: bold;
+            color: #ffffff;
+            margin: 0;
+            line-height: 1;
+        }
+
+        .animation-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: #000;
+            z-index: 1000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+        .animation-overlay.active { display: flex; }
+        .animation-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .result-screen {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #F4E4C2;
+            border-radius: 40px;
+            border: 5px solid #854D25;
+            padding: 30px;
+            text-align: center;
+            z-index: 1100;
+            display: none;
+            flex-direction: column;
+            min-width: 350px;
+            max-width: 90vw;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .result-screen.active { display: flex; }
+        .result-screen h2 { color: #4a2a0e; margin-bottom: 20px; }
+        .close-result {
+            background: #854D25;
+            color: white;
+            border: none;
+            border-radius: 40px;
+            padding: 12px 30px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+            align-self: center;
+            transition: transform 0.2s, background 0.2s;
+            font-family: 'Rubik', sans-serif;
+        }
+
+        .close-result:hover {
+            transform: scale(1.05);
+            background: #6b3d1f;
+        }
+
+
+        .rewards-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+            width: 100%;
+        }
+
+        .reward-card {
+            background: white;
+            border: 3px solid #854D25;
+            border-radius: 20px;
+            padding: 12px 8px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            min-height: 160px;
+        }
+
+        .reward-card img {
+            width: 90px;
+            height: 90px;
+            object-fit: contain;
+            border-radius: 10px;
+        }
+
+        .reward-card h4 {
+            color: #4a2a0e;
+            margin: 0;
+            font-size: 13px;
+            line-height: 1.2;
+        }
+
+        .reward-card p {
+            font-size: 13px;
+            color: #4a2a0e;
+            margin: 0;
+            line-height: 1.2;
+            font-weight:bold
+        }
+
+        .reward-card .warning {
+            color: #4a2a0e;
+            font-size: 10px;
+            margin: 0;
+        }
+    </style>
+
+</head>
+<body>
+    <div class="game-bg">
+        <img src="images/gacha/window.svg" alt="Фон игры">
+    </div>
+
+    <div class="game-content">
+        <button class="gacha-btn" id="btn1">
+            <div class="btn-title">Крутить 1 раз</div>
+            <div class="btn-price">
+                <img src="images/MainScreen/семечка.svg">
+                <span>100</span>
+            </div>
+        </button>
+
+        <button class="gacha-btn" id="btn10">
+            <div class="btn-title">Крутить 10 раз</div>
+            <div class="btn-price">
+                <img src="images/MainScreen/семечка.svg">
+                <span>1000</span>
+            </div>
+        </button>
+
+        <div class="currency-seed">
+            <img src="images/MainScreen/семечка.svg" class="currency-icon">
+            <span class="currency-amount" id="seedAmount">0</span>
+        </div>
+        <div class="currency-water">
+            <img src="images/MainScreen/иконка капли.svg" class="currency-icon">
+            <span class="currency-amount" id="waterAmount">0</span>
+        </div>
+        <div class="currency-gold">
+            <img src="images/MainScreen/иконка пыльцы.svg" class="currency-icon">
+            <span class="currency-amount" id="goldAmount">0</span>
+        </div>
+
+        <button class="back-btn" id="backBtn">← На главный экран</button>
+    </div>
+
+    <div id="animationOverlay" class="animation-overlay">
+        <div id="animationContainer" class="animation-container"></div>
+    </div>
+    
+    <div id="resultScreen" class="result-screen">
+        <h2>РЕЗУЛЬТАТ КРУТКИ</h2>
+        <div id="rewardsGrid" class="rewards-grid"></div>
+        <button class="close-result" id="closeResultBtn">Закрыть</button>
+    </div>
+
+    <script src="js/soundManager.js"></script>
+
+    <script type="module">
+    import api from './js/apiClient.js';
+
+    function waitForSoundManager(cb) {
+        if (window.soundManager && window.soundManager.sounds.music.game) {
+            cb(window.soundManager);
+            return;
+        }
+        const timer = setInterval(() => {
+            if (window.soundManager && window.soundManager.sounds.music.game) {
+                clearInterval(timer);
+                cb(window.soundManager);
+            }
+        }, 50);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        waitForSoundManager(sm => {
+            sm.loadSettings();
+            const lastType = sessionStorage.getItem('musicType') || 'game';
+            if (!sm.currentMusic || sm.currentMusic.paused) {
+                sm.playMusic(lastType);
+            }
+        });
+    });
+
+    const seedAmount = document.getElementById('seedAmount');
+    const waterAmount = document.getElementById('waterAmount');
+    const goldAmount = document.getElementById('goldAmount');
+    const btn1 = document.getElementById('btn1');
+    const btn10 = document.getElementById('btn10');
+        
+    let currentAnimation = null;
+    let isProcessing = false;
+
+    async function loadUserData() {
+        try {
+            const profile = await api.getProfile();
+            const user = profile.user;
+            seedAmount.textContent = user.gems || 0;
+            waterAmount.textContent = user.leveling_materials || 0;
+            goldAmount.textContent = user.coins || 0;
+            console.log('💰 Баланс:', { gems: user.gems, water: user.leveling_materials, coins: user.coins });
+            return user;
+        } catch (error) {
+            console.error('Ошибка загрузки:', error);
+            return null;
+        }
+    }
+
+    async function updateButtonsState() {
+        try {
+            const profile = await api.getProfile();
+            const userGems = profile.user.gems || 0;
+            btn1.disabled = userGems < 100;
+            btn10.disabled = userGems < 1000;
+            btn1.style.opacity = userGems < 100 ? '0.5' : '1';
+            btn10.style.opacity = userGems < 1000 ? '0.5' : '1';
+            return userGems;
+        } catch (error) {
+            console.error('Ошибка обновления кнопок:', error);
+            return 0;
+        }
+    }
+
+    async function checkEnoughGems(cost) {
+        const userGems = await updateButtonsState();
+        if (userGems < cost) {
+            showToast(`Недостаточно гемов! Нужно ${cost}`, true);
+            return false;
+        }
+        return true;
+    }
+
+    function showToast(message, isError = false) {
+        const toast = document.createElement('div');
+        toast.textContent = message;
+        toast.style.position = 'fixed';
+        toast.style.bottom = '20px';
+        toast.style.left = '50%';
+        toast.style.transform = 'translateX(-50%)';
+        toast.style.background = isError ? '#c65149' : '#6B8E23';
+        toast.style.color = 'white';
+        toast.style.padding = '12px 24px';
+        toast.style.borderRadius = '40px';
+        toast.style.fontWeight = 'bold';
+        toast.style.zIndex = '2000';
+        toast.style.fontFamily = 'Rubik, sans-serif';
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 2500);
+    }
+
+
+    async function playAnimations(secondAnimation) {
+        const overlay = document.getElementById('animationOverlay');
+        const container = document.getElementById('animationContainer');
+
+        return new Promise((resolve) => {
+            overlay.classList.add('active');
+
+            //первая анимация
+            const firstContainer = document.createElement('div');
+            firstContainer.style.position = 'absolute';
+            firstContainer.style.width = '100%';
+            firstContainer.style.height = '100%';
+
+            container.innerHTML = '';
+            container.appendChild(firstContainer);
+
+            const firstAnim = lottie.loadAnimation({
+                container: firstContainer,
+                renderer: 'svg',
+                loop: false,
+                autoplay: true,
+                path: 'animations/generalscreen.json'
+            });
+
+            firstAnim.addEventListener('complete', () => {
+                const secondContainer = document.createElement('div');
+                secondContainer.style.position = 'absolute';
+                secondContainer.style.width = '100%';
+                secondContainer.style.height = '100%';
+                secondContainer.style.opacity = '0';
+
+                container.appendChild(secondContainer);
+
+                const secondAnim = lottie.loadAnimation({
+                    container: secondContainer,
+                    renderer: 'svg',
+                    loop: false,
+                    autoplay: false,
+                    path: `animations/${secondAnimation}`
+                });
+                secondAnim.addEventListener('DOMLoaded', () => {
+                    //показываем вторую анимацию
+                    secondContainer.style.opacity = '1';
+                    //удаляем первую после загрузки второй
+                    firstAnim.destroy();
+                    firstContainer.remove();
+                    secondAnim.play();
+                });
+
+                secondAnim.addEventListener('complete', () => {
+                    overlay.classList.remove('active');
+                    secondAnim.destroy();
+                    container.innerHTML = '';
+
+                    resolve();
+                });
+            });
+        });
+    }
+
+    function formatRewardCard(reward) {
+        const r = reward.reward;
+            
+        if (r.type === 'new_character') {
+            const rarityText = r.character.rarity === 'common' ? 'Обычный' : 
+                r.character.rarity === 'epic' ? 'Эпический' : 'Легендарный';
+            return `<div class="reward-card">
+                <img src="${r.character.splash_art_url || 'images/default_icon.png'}" alt="">
+                <h4>${r.character.name}</h4>
+                <p style="color:#854D25; ">${rarityText}</p>
+            </div>`;
+        } 
+        else if (r.type === 'constellation') {
+            const rarityText = r.character.rarity === 'common' ? 'Обычный' : 
+                r.character.rarity === 'epic' ? 'Эпический' : 'Легендарный';
+            return `<div class="reward-card">
+                <img src="${r.character.splash_art_url || 'images/default_icon.png'}" alt="">
+                <h4>${r.character.name}</h4>
+                <p style="color:#854D25; ">${rarityText}</p>
+            </div>`;
+        } 
+        else if (r.type === 'max_reached') {
+            return `<div class="reward-card">
+                <img src="${r.character.splash_art_url || 'images/default_icon.png'}" alt="">
+                <h4>${r.character.name}</h4>
+                <p style="color:#854D25; ">Максимальные созвездия</p>
+            </div>`;
+        }
+        else if (r.type === 'soul_stone_ignored') {
+            return `<div class="reward-card">
+                <img src="${r.characterSplashArt || 'images/MainScreen/семечка.svg'}" alt="">
+                <p>Соулстоны +${r.amount}</p>
+                <p style="color:#854D25; ">Максимальные созвездия</p>
+            </div>`;
+        }
+        else if (r.type === 'soul_stone') {
+            let extra = '';
+            return `<div class="reward-card">
+                <img src="${r.characterSplashArt || 'images/MainScreen/семечка.svg'}" alt="">
+                <p>Соулстоны +${r.amount}</p>
+                ${extra}
+            </div>`;
+        } 
+        else if (r.type === 'coins') {
+            return `<div class="reward-card">
+                <img src="images/MainScreen/иконка пыльцы.svg" alt="">
+                <h4>Пыльца</h4>
+                <p style="font-size:18px; color:#854D25;">+${r.amount}</p>
+            </div>`;
+        } 
+        else if (r.type === 'water') {
+            return `<div class="reward-card">
+                <img src="images/MainScreen/иконка капли.svg" alt="">
+                <h4>Вода</h4>
+                <p style="font-size:18px; color:#854D25;">+${r.amount}</p>
+            </div>`;
+        }
+        return '<div class="reward-card">Неизвестно</div>';
+    }
+
+    async function rollSingle() {
+        waitForSoundManager(sm => sm.playSfx('big'));
+        if (isProcessing) {
+            showToast('Подождите, идёт обработка...', false);
+            return;
+        }
+            
+        const hasEnough = await checkEnoughGems(100);
+        if (!hasEnough) return;
+            
+        try {
+            isProcessing = true;
+            btn1.disabled = true;
+            btn10.disabled = true;
+                
+            console.log('Начинаем кручение 1 раз...');
+                
+            const result = await api.rollSingle();
+            console.log('Результат кручения:', result);
+                
+            if (!result.success) {
+                throw new Error(result.error || 'Ошибка кручения');
+            }
+                
+            await playAnimations(result.animationType);
+                
+            // Потом показываем результат
+            const screen = document.getElementById('resultScreen');
+            const grid = document.getElementById('rewardsGrid');
+            grid.innerHTML = formatRewardCard(result);
+            showResult(1);
+                
+                // Обновляем всё
+            await api.updateQuest('gacha_spins', 1);
+            await loadUserData();
+            await updateButtonsState();
+                
+            console.log('Кручение успешно завершено');
+                
+        } catch (err) {
+            console.error('Ошибка кручения:', err);
+            showToast(err.message || 'Ошибка кручения', true);
+            await loadUserData();
+            await updateButtonsState();
+            document.getElementById('animationOverlay').classList.remove('active');
+        } finally {
+            btn1.disabled = false;
+            btn10.disabled = false;
+            isProcessing = false;
+        }
+    }
+
+    async function rollMulti() {
+        waitForSoundManager(sm => sm.playSfx('big'));
+        if (isProcessing) {
+            showToast('Подождите, идёт обработка...', false);
+            return;
+        }
+            
+        const hasEnough = await checkEnoughGems(1000);
+        if (!hasEnough) return;
+            
+        try {
+            isProcessing = true;
+            btn1.disabled = true;
+            btn10.disabled = true;
+                
+            console.log('Начинаем кручение 10 раз...');
+                
+            const result = await api.rollMulti();
+            console.log('Результат 10 круток:', result);
+                
+            if (!result.success) {
+                throw new Error(result.error || 'Ошибка кручения');
+            }
+                
+            await playAnimations(result.animationType);
+                
+            const screen = document.getElementById('resultScreen');
+            const grid = document.getElementById('rewardsGrid');
+            let html = '';
+            for (const r of result.rewards) {
+                html += formatRewardCard(r);
+            }
+            grid.innerHTML = html;
+            showResult(result.rewards.length);
+                
+            await api.updateQuest('gacha_spins', 10);
+            await loadUserData();
+            await updateButtonsState();
+                
+            console.log('10 круток успешно завершено');
+                
+        } catch (err) {
+            console.error('Ошибка кручения:', err);
+            showToast(err.message || 'Ошибка кручения', true);
+            await loadUserData();
+            await updateButtonsState();
+            document.getElementById('animationOverlay').classList.remove('active');
+        } finally {
+            btn1.disabled = false;
+            btn10.disabled = false;
+            isProcessing = false;
+        }
+    }
+
+
+    function showResult(count = 1) {
+        document.getElementById('resultScreen').classList.add('active');
+        document.getElementById('btn1').style.display = 'none';
+        document.getElementById('btn10').style.display = 'none';
+        document.getElementById('backBtn').style.display = 'none';
+
+        const grid = document.getElementById('rewardsGrid');
+        grid.style.gridTemplateColumns = count === 1 ? '200px' : 'repeat(5, 1fr)';
+        grid.style.justifyContent = count === 1 ? 'center' : '';
+    }
+
+    function hideResult() {
+        document.getElementById('resultScreen').classList.remove('active');
+        document.getElementById('btn1').style.display = '';
+        document.getElementById('btn10').style.display = '';
+        document.getElementById('backBtn').style.display = '';
+    }
+    function closeResultAndGoHome() {
+        waitForSoundManager(sm => sm.playSfx('big'));
+        hideResult();
+    }
+
+    btn1.onclick = rollSingle;
+    btn10.onclick = rollMulti;
+    backBtn.onclick = () => {
+        waitForSoundManager(sm => sm.navigate('game.html', 'big'));
+    };
+    document.getElementById('closeResultBtn').onclick = closeResultAndGoHome;
+
+    async function init() {
+        await loadUserData();
+        await updateButtonsState();
+        console.log('🎮 Страница гачи загружена');
+    }
+        
+    init();
+    </script>
+</body>
+</html>

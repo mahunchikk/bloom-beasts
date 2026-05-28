@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Настройки</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;700;900&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Rubik', sans-serif;
+            width: 100%;
+            min-height: 100vh;
+            overflow: hidden; 
+        }
+
+        /* фон */
+        .game-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .game-bg img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; 
+            display: block;
+            pointer-events: none; 
+        }
+
+        /* окошко настроек */
+        .settings-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -52%);
+            width: 80vw;
+            max-width: 1100px;
+            background: #F4E4C2;
+            border-radius: 40px;
+            border: 5px solid #854D25;
+            padding: 25px 30px 35px;
+            text-align: center;
+            backdrop-filter: blur(5px);
+            z-index: 10;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .settings-title {
+            font-size: 42px;
+            font-weight: 900;
+            color: #854D25;
+            margin-bottom: 35px;
+        }
+
+        /* настройка громкости */
+        .setting-item {
+            margin-bottom: 35px;
+            text-align: left;
+        }
+
+        .setting-label {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+            font-size: 20px;
+            font-weight: 600;
+            color: #6b3d1f;
+        }
+
+        .volume-slider {
+            width: 100%;
+            height: 6px;
+            background: #d4b88c; 
+            border-radius: 10px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #854D25;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid #f5e6c4;
+        }
+
+        .volume-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            background: #a86332;
+        }
+
+        .volume-value {
+            display: inline-block;
+            margin-left: 15px;
+            font-size: 16px;
+            font-weight: 500;
+            color: #854D25;
+            min-width: 45px;
+        }
+
+        /* блок авторов */
+        .credits {
+            margin-top: 20px;
+            padding-top: 15px;
+        }
+
+        .credits p {
+            font-size: 16px;
+            color: #6b3d1f;
+            line-height: 1.8;
+            font-weight: 500;
+        }
+
+        .credits .developers {
+            font-size: 18px;
+            font-weight: 700;
+            color: #854D25;
+            margin-bottom: 8px;
+        }
+
+        .credits .sound {
+            font-size: 15px;
+            color: #a0683e;
+        }
+
+        /* кнопка сохранения */
+        .buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .btn {
+            background: #854D25;
+            color: white;
+            border: none;
+            border-radius: 40px;
+            padding: 12px 30px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+            background: #6b3d1f;
+        }
+
+
+
+
+        /* крестик */
+        .close-btn {
+            position: absolute;
+            top: 145px;
+            right: 260px;
+            width: 65px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            z-index: 20;
+        }
+
+        .close-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .close-btn img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+    </style>
+</head>
+<body>
+    <!-- фон -->
+    <div class="game-bg" id="gameBg">
+        <img id="bgImage" src="images/MainScreen/общий фон.svg" alt="Фон">
+    </div>
+    
+    <!-- крестик -->
+    <div class="close-btn" id="closeBtn">
+            <img src="images/MainScreen/Book/крестик.svg" alt="Закрыть" />
+        </div>
+
+
+    <!-- форма настроек -->
+    <div class="settings-container" id="settingsContainer">
+        <div class="settings-title">НАСТРОЙКИ</div>
+
+        
+        <!-- ползунок громкости кнопок -->
+        <div class="setting-item">
+            <div class="setting-label">
+                <img src="images/MainScreen/иконка звука.svg" alt="Звук" onerror="this.style.display='none'">
+                <span>Звуки нажатий</span>
+            </div>
+            <input type="range" class="volume-slider" id="sfxVolume" min="0" max="100" value="50">
+            <span class="volume-value" id="sfxValue">50%</span>
+        </div>
+
+        <!-- ползунок громкости музыки -->
+        <div class="setting-item">
+            <div class="setting-label">
+                <img src="images/MainScreen/иконка музыки.svg" alt="Музыка" onerror="this.style.display='none'">
+                <span>Фоновая музыка</span>
+            </div>
+            <input type="range" class="volume-slider" id="musicVolume" min="0" max="100" value="50">
+            <span class="volume-value" id="musicValue">50%</span>
+        </div>
+
+        <!-- авторы -->
+        <div class="credits">
+            <p class="developers">АВТОРЫ</p>
+            <p>Разработчики игры: Стерликова Анастасия и Ефимова Мария</p>
+            <p class="sound">Музыка, саунд дизайн - Евдокимов М.С. СГИК 3Вс-224/Soundbin</p>
+        </div>
+
+        <!-- кнопка сохранить -->
+        <div class="buttons">
+            <button class="btn" id="saveBtn">Сохранить</button>
+        </div>
+    </div>
+
+    <script src="js/soundManager.js"></script>
+ 
+    <script type="module">
+    function waitForSoundManager(cb) {
+        if (window.soundManager && window.soundManager.sounds.music.game) {
+            cb(window.soundManager); 
+            return;
+        }
+        const t = setInterval(() => {
+            if (window.soundManager && window.soundManager.sounds.music.game) {
+                clearInterval(t); 
+                cb(window.soundManager);
+            }
+        }, 50);
+    }
+ 
+    const sfxSlider   = document.getElementById('sfxVolume');
+    const musicSlider = document.getElementById('musicVolume');
+    const sfxValue    = document.getElementById('sfxValue');
+    const musicValue  = document.getElementById('musicValue');
+    const saveBtn     = document.getElementById('saveBtn');
+    const closeBtn    = document.getElementById('closeBtn');
+ 
+    function updateSliderColor(slider) {
+        const pct = slider.value;
+        slider.style.background =
+            `linear-gradient(to right, #A8CD6B 0%, #A8CD6B ${pct}%, #d4b88c ${pct}%, #d4b88c 100%)`;
+    }
+ 
+    document.addEventListener('DOMContentLoaded', () => {
+        waitForSoundManager(sm => {
+            sm.loadSettings();
+ 
+            const lastType = sessionStorage.getItem('musicType') || 'game';
+            if (!sm.currentMusic || sm.currentMusic.paused) {
+                sm.playMusic(lastType);
+            }
+ 
+            sfxSlider.value   = Math.round(sm.sfxVolume   * 100);
+            musicSlider.value = Math.round(sm.musicVolume * 100);
+            sfxValue.textContent   = sfxSlider.value   + '%';
+            musicValue.textContent = musicSlider.value + '%';
+            updateSliderColor(sfxSlider);
+            updateSliderColor(musicSlider);
+        });
+    });
+ 
+    sfxSlider.addEventListener('input', () => {
+        sfxValue.textContent = sfxSlider.value + '%';
+        updateSliderColor(sfxSlider);
+        waitForSoundManager(sm => sm.setSfxVolume(sfxSlider.value));
+    });
+ 
+    musicSlider.addEventListener('input', () => {
+        musicValue.textContent = musicSlider.value + '%';
+        updateSliderColor(musicSlider);
+        waitForSoundManager(sm => sm.setMusicVolume(musicSlider.value));
+    });
+ 
+    saveBtn.onclick = () => {
+        waitForSoundManager(sm => {
+            sm.setSfxVolume(sfxSlider.value);
+            sm.setMusicVolume(musicSlider.value);
+            sm.playSfx('big');
+        });
+        localStorage.setItem('sfxVolume',   sfxSlider.value);
+        localStorage.setItem('musicVolume', musicSlider.value);
+    };
+ 
+    closeBtn.onclick = () => waitForSoundManager(sm => sm.navigate('game.html', 'small'));
+ 
+    document.addEventListener('contextmenu', e => e.preventDefault());
+    document.addEventListener('selectstart', e => e.preventDefault());
+    document.addEventListener('dragstart',   e => e.preventDefault());
+    
+    </script>
+</body>
+</html>

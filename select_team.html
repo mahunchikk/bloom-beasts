@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Выбор команды</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&family=Rubik:ital,wght@0,300..900;1,300..900&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            font-family: 'Rubik', sans-serif;
+            width: 100%;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        /* фон */
+        .game-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .game-bg img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* вылюты */
+        .currency-seed { /* семечки */
+            position: absolute;
+            top: 10px;
+            right: 50px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(89, 124, 79, 1);
+            border-radius: 30px;
+            padding: 8px 20px;
+            width: 180px;
+            z-index: 10;
+        }
+
+        .currency-water { /* капля */
+            position: absolute;
+            top: 10px;
+            right: 250px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(89, 124, 79, 1);
+            border-radius: 30px;
+            padding: 8px 20px;
+            width: 180px;
+            z-index: 10;
+        }
+       
+        .currency-gold { /* звезда */
+            position: absolute;
+            top: 10px;
+            right: 450px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(89, 124, 79, 1);
+            border-radius: 30px;
+            padding: 8px 20px;
+            width: 180px;
+            z-index: 10;
+        }
+        .currency-water .currency-icon { width: 30px;  }
+        .currency-seed .currency-icon { width: 40px;  }
+        .currency-gold .currency-icon { width: 50px;  }
+
+        .currency-amount {
+            font-size: 24px;
+            font-family: 'Rubik', sans-serif;
+            font-weight: bold;
+            color: #ffffff;
+            margin: 0;
+            line-height: 1;
+        }
+
+
+        /* вся форма выбора команды */
+        .team-selector {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -52%);
+            width: 80vw;
+            max-width: 1100px;
+            max-height: 60vh;           /* ← максимальная высота 85% экрана */
+            background: #F4E4C2;
+            border-radius: 40px;
+            border: 5px solid #854D25;
+            padding: 25px 30px 35px;
+            text-align: center;
+            backdrop-filter: blur(5px);
+            z-index: 10;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;     /* ← вертикальное расположение */
+        }
+
+        /* сетка персонажей */
+        .characters-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            margin-bottom: 25px;
+            overflow-y: auto;           /* ← скролл когда много */
+            padding: 12px;
+            flex: 1;                    /* ← занимает всё свободное место */
+            min-height: 0;              /* ← важно для скролла */
+        }
+
+        /* Заголовки и кнопки - не сжимаются */
+        h1, .subtitle, .selected-counter, .battle-btn {
+            flex-shrink: 0;            /* ← остаются на месте */
+        }
+
+        h1 {
+            font-family: 'Rubik', sans-serif;
+            font-weight: bold;
+            color: #854D25;
+            margin-bottom: 8px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #625332;
+            margin-bottom: 25px;
+            font-size: 16px;
+        }
+
+            /* Красивая полоса прокрутки */
+        .characters-grid::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .characters-grid::-webkit-scrollbar-track {
+            background: rgba(133, 77, 37, 0.2);
+            border-radius: 10px;
+        }
+
+        .characters-grid::-webkit-scrollbar-thumb {
+            background: #854D25;
+            border-radius: 10px;
+        }   
+
+        /* карточка персонажа */
+        .character-card {
+            background: white;
+            border-radius: 20px;
+            border: 3px solid #854D25;
+            padding: 15px 10px;
+            cursor: default;
+            transition: all 0.2s ease;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .character-card.selected {
+            background: #A8CD6B;
+            border-color:  #854D25;
+            transform: scale(1.02);
+            box-shadow: 0 0 15px rgba(76, 175, 80, 0.5);
+        }
+
+        .character-card img {
+            width: 120px;
+            height: 120px;
+            object-fit: contain;
+            margin-bottom: 8px;
+            transition: transform 0.2s;
+        }
+
+        .character-card:hover img {
+            transform: scale(1.3); 
+        }
+
+        .character-name {
+            font-size: 16px;
+            font-weight: bold;
+            color: #854D25;
+        }
+
+        .character-card.selected .character-name {
+            color: #854D25;
+        }
+
+        .character-level {
+            font-size: 12px;
+            color: #854D25;
+            margin-top: 4px;
+        }
+
+        .selected-counter {
+            font-size: 18px;
+            margin: 15px 0;
+            color: #854D25;
+            font-weight: bold;
+        }
+
+        .battle-btn {
+            background: #A8CD6B;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 12px 40px;
+            font-size: 22px;
+            font-weight: bold;
+            cursor: default;
+            transition: transform 0.2s;
+        }
+
+        .battle-btn:disabled {
+            background: #999;
+            cursor: default;
+        }
+
+        .battle-btn:hover:not(:disabled) {
+            transform: scale(1.02);
+            background: rgba(89, 124, 79, 1);
+        }
+
+        /* кнопка назад */
+        .back-btn {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            background: #854D25;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            padding: 10px 25px;
+            cursor: default;
+            transition: transform 0.2s;
+            z-index: 20;
+            font-size: 22px;
+        }
+
+        .back-btn:hover {
+            transform: scale(1.05);
+            background: #6b3d1f;
+        }
+
+        /* скролл */
+        .characters-grid::-webkit-scrollbar {
+            width: 8px;
+        }
+        .characters-grid::-webkit-scrollbar-track {
+            background: rgba(133, 77, 37, 0.2);
+            border-radius: 10px;
+        }
+        .characters-grid::-webkit-scrollbar-thumb {
+            background: #854D25;
+            border-radius: 10px;
+        }
+
+        .character-role {
+            font-size: 11px;
+            color: #854D25;
+            margin-top: 4px;
+            font-weight: 500;
+        }
+
+        @keyframes buffFloat {
+            0%   { opacity: 1; transform: translateX(-50%) translateY(0); }
+            80%  { opacity: 1; }
+            100% { opacity: 0; transform: translateX(-50%) translateY(-60px); }
+        }
+
+    </style>
+</head>
+<body>
+    <!-- фон -->
+    <div class="game-bg" id="gameBg">
+        <img id="bgImage" src="" alt="Фон" />
+    </div>
+
+    <!-- валюты -->
+    <div class="currencies-panel">
+        <div class="currency-item currency-seed">
+            <img src="images/MainScreen/семечка.svg" alt="Семена" class="currency-icon" />
+            <span class="currency-amount" id="seedAmount">10</span>
+        </div>
+        <div class="currency-item currency-water">
+            <img src="images/MainScreen/иконка капли.svg" alt="Вода" class="currency-icon" />
+            <span class="currency-amount" id="waterAmount">500</span>
+        </div>
+        <div class="currency-item currency-gold">
+            <img src="images/MainScreen/иконка пыльцы.svg" alt="Пыльца" class="currency-icon" />
+            <span class="currency-amount" id="goldAmount">20</span>
+        </div>
+    </div>
+
+    <button class="back-btn" id="backBtn">← На карту</button>
+
+    <!-- выбор команды -->
+    <div class="team-selector">
+        <h1 id="stageTitle">ВЫБОР КОМАНДЫ</h1>
+        <div class="subtitle">Выбери 3 персонажей для битвы</div>
+
+        <div class="characters-grid" id="charactersGrid"></div>
+
+        <div class="selected-counter" id="selectedCounter">Выбрано: 0 / 3</div>
+        <button class="battle-btn" id="battleBtn" disabled>НАЧАТЬ БИТВУ</button>
+    </div>
+
+    <script src="js/soundManager.js"></script>
+
+    <script type="module">
+    import api from './js/apiClient.js';
+
+    function showBuffToast(text, color) {
+        const toast = document.createElement('div');
+        toast.textContent = text;
+        toast.style.cssText = `
+            position: fixed;
+            top: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            font-family: 'Rubik', sans-serif;
+            font-size: 22px;
+            font-weight: 700;
+            color: ${color || '#854D25'};
+            pointer-events: none;
+            white-space: nowrap;
+            animation: buffFloat 2s ease forwards;
+        `;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 2000);
+    }
+
+
+    function waitForSoundManager(cb) {
+        if (window.soundManager && window.soundManager.sounds.music.game) {
+            cb(window.soundManager);
+            return;
+        }
+        const timer = setInterval(() => {
+            if (window.soundManager && window.soundManager.sounds.music.game) {
+                clearInterval(timer);
+                cb(window.soundManager);
+            }
+        }, 50);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        waitForSoundManager(sm => {
+            sm.loadSettings();
+            const lastType = sessionStorage.getItem('musicType') || 'game';
+            if (!sm.currentMusic || sm.currentMusic.paused) {
+                sm.playMusic(lastType);
+            }
+        });
+    });
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const STAGE_ID = parseInt(urlParams.get('stageId'));
+
+    // Установка фона в зависимости от уровня
+    const bgImage = document.getElementById('bgImage');
+    if (STAGE_ID === 5) {
+        bgImage.src = 'images/MapScreen/пустое темно.svg';
+    } else {
+        bgImage.src = 'images/MapScreen/пустое светло.svg';
+    }
+
+    let allCharacters = [];
+    let selectedTeam = [];
+
+    async function loadUserData() {
+        try {
+            const profile = await api.getProfile();
+            const user = profile.user;
+            
+            seedAmount.textContent = user.gems || 0;
+            waterAmount.textContent = user.leveling_materials || 0;
+            goldAmount.textContent = user.coins || 0;
+        } catch (error) {
+            console.error('Ошибка загрузки валюты');
+        }
+    }
+
+    async function loadCharacters() {
+        try {
+            const chars = await api.getUserCharacters();
+            allCharacters = chars.sort((a, b) => {
+                if (b.level !== a.level) {
+                return b.level - a.level;  // сначала высокий уровень
+                }
+            // при равном уровне — по алфавиту (А → Я)
+                return a.Character.name.localeCompare(b.Character.name);
+            });
+            renderCharacters();
+        } catch (error) {
+            console.error('Ошибка загрузки валюты');
+        }
+    }
+
+    function renderCharacters() {
+        const container = document.getElementById('charactersGrid');
+        container.innerHTML = '';
+
+        allCharacters.forEach(char => {
+            const isSelected = selectedTeam.includes(char.character_id);
+            const card = document.createElement('div');
+            card.className = `character-card ${isSelected ? 'selected' : ''}`;
+
+            card.innerHTML = `
+                <img src="${char.Character.splash_art_url || 'images/default_icon.png'}">
+                <div class="character-name">${char.Character.name}</div>
+                <div class="character-level">Уровень ${char.level}</div>
+                <div class="character-role"> ${char.Character.role === 'attacker' ? 'Атакующий' : 
+                    char.Character.role === 'defender' ? 'Щитовик' : 'Саппорт'}</div>
+            `;
+            card.onclick = () => toggleCharacter(char.character_id, card);
+            container.appendChild(card);
+        });
+    }
+
+    function toggleCharacter(characterId, cardElement) {
+        waitForSoundManager(sm => sm.playSfx('big'));
+        const index = selectedTeam.indexOf(characterId);
+        if (index === -1) {
+            if (selectedTeam.length >= 3) {
+                showBuffToast('Можно выбрать только 3 персонажей!', '#854D25');
+                return;
+            }
+            selectedTeam.push(characterId);
+            cardElement.classList.add('selected');
+        } else {
+            selectedTeam.splice(index, 1);
+            cardElement.classList.remove('selected');
+        }
+        document.getElementById('selectedCounter').innerHTML = `Выбрано: ${selectedTeam.length} / 3`;
+        document.getElementById('battleBtn').disabled = selectedTeam.length !== 3;
+    }
+
+    document.getElementById('battleBtn').onclick = () => {
+        if (selectedTeam.length === 3) {
+            waitForSoundManager(sm => sm.navigate(`battle.html?stageId=${STAGE_ID}&teamIds=${selectedTeam.join(',')}`,    'big'));
+        }
+    };
+
+    backBtn.onclick    = () => waitForSoundManager(sm => sm.navigate('map.html',    'big'));
+
+    loadUserData();
+    loadCharacters();
+    </script>
+</body>
+</html>

@@ -21,29 +21,29 @@
         .my-button-reg {
             position: fixed;
             bottom: 150px;
-            right: 400px;
-            width: 275px;    
-            cursor: pointer;
+            left: 50%;
+            transform: translateX(calc(-40% + 150px));
+            width: 275px;
             z-index: 999;
             transition: transform 0.3s ease;
         }
 
         .my-button-reg:hover {
-            transform: scale(1.05);
+            transform: translateX(calc(-40% + 150px)) scale(1.05);
         }
 
         .my-button-login {
             position: fixed;
             bottom: 150px;
-            right: 850px;
-            width: 275px;    
-            cursor: pointer;
+            left: 50%;
+            transform: translateX(calc(-70% - 150px));
+            width: 275px;
             z-index: 999;
             transition: transform 0.3s ease;
         }
 
         .my-button-login:hover {
-            transform: scale(1.05);
+            transform: translateX(calc(-70% - 150px)) scale(1.05);
         }
 
         .panel-btn {

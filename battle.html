@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Битва - Схватка в лесу</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;700;900&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Rubik', sans-serif;
+            width: 100%;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .battle-bg {
+            position: fixed; 
+            top: 0; 
+            left: 0;
+            width: 100%; 
+            height: 100%;
+            object-fit: cover; 
+            z-index: 0;
+        }
+
+        .characters-container {
+            position: fixed; 
+            top: 0; 
+            left: 0;
+            width: 100%; 
+            height: 100%;
+            z-index: 10; 
+            pointer-events: none;
+        }
+
+        .character {
+            position: absolute;
+            pointer-events: auto;
+            width: 350px;
+            height: 350px;
+        }
+
+        .character.dead { pointer-events: none; }
+
+        .character-wrap {
+            position: relative;
+            width: 350px;
+            height: 350px;
+        }
+
+        .character-anim,
+        .character-sprite,
+        .character-dead-img {
+            position: absolute;
+            top: 0; left: 0;
+            width: 350px; height: 350px;
+            object-fit: contain;
+        }
+
+        .character-anim    { display: none; }
+        .character-sprite  { display: none; }
+        .character-dead-img {
+            display: none;
+            filter: grayscale(1);
+            opacity: 0.5;
+        }
+
+        .hp-bar-container {
+            position: absolute;
+            top: -15px; left: 50%;
+            transform: translateX(-50%);
+            width: 180px; height: 12px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 6px; overflow: hidden;
+        }
+
+        .hp-bar-fill {
+            height: 100%; width: 100%;
+            transition: width 0.3s;
+        }
+
+        .ally-hp  { background: #4e47ba; }
+        .enemy-hp { background: #c65149; }
+
+        .ally-1  { left: 16%; top: 40%; transform: translateY(-50%); }
+        .ally-2  { left: 4%;  top: 65%; transform: translateY(-50%); }
+        .ally-3  { left: 29%; top: 63%; transform: translateY(-50%); }
+
+        .enemy-1 { right: 17%; top: 40%; transform: translateY(-50%); }
+        .enemy-2 { right: 6%;  top: 65%; transform: translateY(-50%); }
+        .enemy-3 { right: 28%; top: 63%; transform: translateY(-50%); }
+
+        /* Контейнер для кнопок способностей */
+        .skills-container {
+            position: fixed;
+            bottom: 1px;
+            left: 8.5%;
+            display: flex;
+            gap: 115px;
+            z-index: 30;
+        }
+
+        /* стили для каждой кнопки способности */
+        .skill-img {
+            width: 127px;
+            height: 127px;
+            transition: all 0.2s;
+            border: 3px solid #854D25;
+            background: transparent;
+            object-fit: contain;
+            border-radius: 20px;
+        }   
+
+        .skill-img:hover {
+            transform: scale(1.05);
+        }
+
+        .skill-img.disabled {
+            opacity: 0.4;
+            filter: grayscale(1);
+        }
+
+        .skill-img.ready {
+            opacity: 1;
+            filter: none;
+        }
+
+        
+
+        .skill-role-badge {
+            position: fixed; bottom: 148px;
+            z-index: 30;
+            font-size: 11px; font-weight: 700;
+            color: #fff;
+            background: rgba(0,0,0,0.55);
+            border-radius: 20px;
+            padding: 2px 10px;
+            pointer-events: none;
+            letter-spacing: 0.5px;
+        }
+        #roleBadge1 { left: 131px; width: 140px; text-align: center; }
+        #roleBadge2 { left: 370px; width: 140px; text-align: center; }
+        #roleBadge3 { left: 615px; width: 140px; text-align: center; }
+
+        .buff-toast {
+            position: fixed;
+            z-index: 50;
+            font-family: 'Rubik', sans-serif;
+            font-size: 18px; font-weight: 700;
+            color: #854D25;
+            pointer-events: none;
+            animation: buffFloat 2s ease forwards;
+        }
+        @keyframes buffFloat {
+            0%   { opacity: 1; transform: translateY(0); }
+            80%  { opacity: 1; }
+            100% { opacity: 0; transform: translateY(-60px); }
+        }
+
+        .back-btn {
+            position: fixed; 
+            bottom: 30px; 
+            right: 30px;
+            background: #854D25; 
+            color: white;
+            border: none; 
+            border-radius: 30px;
+            padding: 10px 25px; 
+            transition: transform 0.2s; 
+            z-index: 20; 
+            font-size: 22px;
+        }
+        .back-btn:hover { transform: scale(1.05); background: #6b3d1f; }
+
+        .enemy-boss {
+            right: 280px;
+            top: 430px;
+            transform: translateY(-50%);
+            scale: 1.3;
+        }
+    </style>
+</head>
+<body>
+
+    <img class="battle-bg" id="battleBg" src="" alt="">
+    <button class="back-btn" id="backBtn">← На карту</button>
+    <div class="characters-container" id="charactersContainer"></div>
+
+    <div class="skills-container">
+        <img id="skillImg1" class="skill-img" style="display:none;">
+        <img id="skillImg2" class="skill-img" style="display:none;">
+        <img id="skillImg3" class="skill-img" style="display:none;">
+    </div>
+
+
+    <script src="js/soundManager.js"></script>
+
+    <script type="module">
+    import api from './js/apiClient.js';
+
+    function waitForSoundManager(cb) {
+        if (window.soundManager && window.soundManager.sounds.music.game) { 
+            cb(window.soundManager); 
+            return;
+        }
+        const t = setInterval(() => {
+            if (window.soundManager && window.soundManager.sounds.music.game) { 
+                clearInterval(t); 
+                cb(window.soundManager); }
+        }, 50);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        waitForSoundManager(sm => { 
+            sm.loadSettings(); 
+            sm.playMusic('battle');
+        });
+    });
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const stageId   = parseInt(urlParams.get('stageId'));
+    const teamIds   = urlParams.get('teamIds')?.split(',').map(Number) || [];
+
+    //настройки анимаций для отдельных персонажей
+    const ANIM_OVERRIDES = {
+        'animations/characters/wolf_at.json': { mirrorX: true, scale: 1.2},
+        'animations/characters/wolf_sp.json': { mirrorX: true, scale: 1.2 },
+        'animations/characters/voron_at.json': { scale: 1.1},
+        'animations/characters/voron_sp.json': { scale: 1.1 },
+        'animations/characters/humster_at.json': { scale: 1.1},
+        'animations/characters/humster_sp.json': { scale: 1.1 },
+    };
+
+    const IMG_CONST = {
+        'animations/characters/cat_image.png': { scale: 0.9, offsetX: -10,},
+        'animations/characters/luna_image.png': { scale: 0.8, offsetX: -10,},
+        'animations/characters/humster_image.png': { scale: 0.9, offsetX: -20, offsetY: 15,},
+        'animations/characters/wolf_image.png': { scale: 0.9, offsetY: -5,},
+        'animations/characters/voron_image.png': { offsetX: -20, offsetY: -5},
+    }
+
+    function applyImgConst(imgEl, spritePath) {
+        const cfg = IMG_CONST[spritePath];
+        if (!cfg || !imgEl) return;
+        const scale  = cfg.scale   ?? 1;
+        const scaleX = cfg.mirrorX ? -scale : scale;
+        const ox     = cfg.offsetX ?? 0;
+        const oy     = cfg.offsetY ?? 0;
+        imgEl.style.transformOrigin = 'center center';
+        imgEl.style.transform       = `translate(${ox}px, ${oy}px) scale(${scaleX}, ${scale})`;
+    }
+
+    const ENEMIES_DATA = {
+        1: [
+            { sprite: "images/enemies/муравей.png",    attackAnim: "animations/enemies/muravei.json", maxHp: 1200, attack: 600, defense: 0,  attackTime: 2000 },
+            { sprite: "images/enemies/муравей.png",    attackAnim: "animations/enemies/muravei.json", maxHp: 1200, attack: 600, defense: 0,  attackTime: 2000 },
+            { sprite: "images/enemies/муравей.png",    attackAnim: "animations/enemies/muravei.json", maxHp: 1200,  attack: 600, defense: 0,  attackTime: 2000 }
+        ],
+        2: [
+            { sprite: "images/enemies/муравей.png",    attackAnim: "animations/enemies/muravei.json", maxHp: 1200, attack: 600, defense: 100, attackTime: 2000 },
+            { sprite: "images/enemies/муравей.png",    attackAnim: "animations/enemies/muravei.json", maxHp: 1200, attack: 600, defense: 100, attackTime: 2000 },
+            { sprite: "images/enemies/рандом жук.png", attackAnim: "animations/enemies/bigBug.json",  maxHp: 3000, attack: 1000, defense: 150, attackTime: 5000 }
+        ],
+        3: [
+            { sprite: "images/enemies/муравей.png",    attackAnim: "animations/enemies/muravei.json", maxHp: 1200, attack: 600, defense: 100, attackTime: 2000 },
+            { sprite: "images/enemies/рандом жук.png", attackAnim: "animations/enemies/bigBug.json",  maxHp: 3000, attack: 1000, defense: 150, attackTime: 5000 },
+            { sprite: "images/enemies/рандом жук.png", attackAnim: "animations/enemies/bigBug.json",  maxHp: 3000, attack: 1000, defense: 150, attackTime: 5000 }
+        ],
+        4: [
+            { sprite: "images/enemies/рандом жук.png", attackAnim: "animations/enemies/bigBug.json",  maxHp: 3000, attack: 1000, defense: 150, attackTime: 5000 },
+            { sprite: "images/enemies/рандом жук.png", attackAnim: "animations/enemies/bigBug.json",  maxHp: 3000, attack: 1000, defense: 150, attackTime: 5000 },
+            { sprite: "images/enemies/рандом жук.png", attackAnim: "animations/enemies/bigBug.json",  maxHp: 3000, attack: 1000, defense: 150, attackTime: 5000 }
+        ],
+        5: [
+            { sprite: "images/enemies/босс.png", attackAnim: "animations/enemies/boss.json", maxHp: 10000, attack: 2500, defense: 50, attackTime: 4000, isBoss: true }
+        ]
+    };
+
+    let allies         = [];
+    let enemies        = [];
+    let battleActive   = true;
+    let allyIntervals  = [];
+    let enemyIntervals = [];
+
+    const lottieInstances = {};
+
+    document.getElementById('battleBg').src = stageId === 5? 'images/MapScreen/бой_темно2.svg':'images/MapScreen/фон боя светло.svg';
+
+    function createLottie(container, animPath, loop) {
+        if (!animPath || !container) return null;
+        try {
+            const inst = lottie.loadAnimation({
+                container, renderer: 'svg', loop, autoplay: true, path: animPath
+            });
+
+            inst.addEventListener('DOMLoaded', () => {
+                const svg = container.querySelector('svg');
+                if (!svg) return;
+                const overrides = ANIM_OVERRIDES[animPath];
+                if (!overrides) return;
+                let transform = '';
+                const scale    = overrides.scale   || 1;
+                const offsetX  = overrides.offsetX || 0;
+                const offsetY  = overrides.offsetY || 0;
+                const scaleX   = overrides.mirrorX ? -scale : scale;
+                transform = `translate(${offsetX}px, ${offsetY}px) scale(${scaleX}, ${scale})`;
+                svg.style.transformOrigin = 'center center';
+                svg.style.transform       = transform;
+            });
+            return inst;
+        } catch (e) {
+            console.warn('Lottie ошибка:', animPath, e);
+            return null;
+        }
+    }
+
+    function safeDestroy(inst) {
+        if (!inst) return;
+        try { inst.destroy(); } catch (e) {}
+    }
+
+    function initLottie(id, container, attackPath, skillPath) {
+        lottieInstances[id] = {
+            attackInst: null, skillInst: null,
+            attackPath: attackPath || null, skillPath: skillPath || null,
+            container, playingSkill: false
+        };
+        container.style.width = '350px';
+        container.style.height = '350px';
+        container.style.position = 'relative';
+        if (attackPath) {
+            lottieInstances[id].attackInst = createLottie(container, attackPath, true);
+            container.style.display = 'block';
+        } else {
+            container.style.display = 'none';
+        }
+    }
+
+    function playSkillAnim(id) {
+        const e = lottieInstances[id];
+        if (!e || e.playingSkill || !e.skillPath) return;
+        e.playingSkill = true;
+        safeDestroy(e.attackInst);
+        e.attackInst = null;
+        e.container.innerHTML = '';
+        e.container.style.display  = 'block';
+        e.container.style.width    = '350px';
+        e.container.style.height   = '350px';
+        e.container.style.position = 'relative';
+        const fallback = e.container.parentElement?.querySelector('.character-sprite');
+        if (fallback) fallback.style.display = 'none';
+        const deadImg = e.container.parentElement?.querySelector('.character-dead-img');
+        if (deadImg) deadImg.style.display = 'none';
+        const skillInst = createLottie(e.container, e.skillPath, false);
+        e.skillInst = skillInst;
+        if (!skillInst) { returnToIdle(id); return; }
+        skillInst.addEventListener('complete', () => returnToIdle(id));
+    }
+
+    function returnToIdle(id) {
+        const e = lottieInstances[id];
+        if (!e) return;
+        safeDestroy(e.skillInst);
+        e.skillInst = null; e.playingSkill = false;
+        e.container.innerHTML = '';
+        if (e.attackPath) {
+            e.attackInst = createLottie(e.container, e.attackPath, true);
+            e.container.style.display = 'block';
+            const fallback = e.container.parentElement?.querySelector('.character-sprite');
+            if (fallback) fallback.style.display = 'none';
+            const deadImg = e.container.parentElement?.querySelector('.character-dead-img');
+            if (deadImg) deadImg.style.display = 'none';
+        } else {
+            e.container.style.display = 'none';
+            const fallback = e.container.parentElement?.querySelector('.character-sprite');
+            if (fallback) { fallback.style.display = 'block'; fallback.style.filter = 'none'; fallback.style.opacity = '1'; }
+            const deadImg = e.container.parentElement?.querySelector('.character-dead-img');
+            if (deadImg) deadImg.style.display = 'none';
+        }
+    }
+
+    function killLottie(id) {
+        const e = lottieInstances[id];
+        if (!e) return;
+        safeDestroy(e.attackInst); safeDestroy(e.skillInst);
+        e.attackInst = null; e.skillInst = null;
+        e.playingSkill = false; e.container.innerHTML = '';
+    }
+
+    function destroyAllLottie() {
+        Object.values(lottieInstances).forEach(e => { safeDestroy(e.attackInst); safeDestroy(e.skillInst); });
+        Object.keys(lottieInstances).forEach(k => delete lottieInstances[k]);
+    }
+
+    async function loadAllies() {
+        const userChars     = await api.getUserCharacters();
+        const selectedChars = userChars.filter(uc => teamIds.includes(uc.character_id));
+
+        for (let i = 0; i < selectedChars.length; i++) {
+            const uc   = selectedChars[i];
+            const char = uc.Character;
+
+            const maxHp = uc.current_hp;
+
+            allies.push({
+                id:                 `ally_${i}`,
+                name:               char.name,
+                sprite:             char.sprite_url,
+                attackAnimPath:     char.attack_animation_url || null,
+                skillAnimPath:      char.skill_animation_url  || null,
+                skillIcon:          char.skill_icon || 'images/default_skill.png',
+                maxHp,
+                hp:                 maxHp,
+                attack:             uc.current_attack,
+                baseAttack:         uc.current_attack,
+                defense:            uc.current_defense || 0,
+                baseDefense:        uc.current_defense || 0,
+                attackTime:         char.attack_time || 5000,
+                skillCooldown:      char.cooldown || 10000,
+                currentCooldown:    0,
+                role:               char.role || 'attacker',
+                skillEffectPercent: char.skill_effect_percent || 30,
+                skillDuration:      char.skill_duration || 5000,
+                skillLevel:         uc.skill_level || 1,
+                defenseBuffActive:  false,
+                attackBuffActive:   false,
+                _defenseBonus:          0,
+                _supportAttackBonus:    0,
+                _supportDefenseBonus:   0,
+                position:           i + 1
+            });
+        }
+    }
+
+    function loadEnemies() {
+        const data = ENEMIES_DATA[stageId] || ENEMIES_DATA[1];
+        enemies = data.map((e, idx) => ({
+            id: `enemy_${idx}`, sprite: e.sprite, attackAnim: e.attackAnim || null,
+            maxHp: e.maxHp, hp: e.maxHp, attack: e.attack, defense: e.defense || 0,
+            isBoss: e.isBoss || false,
+            attackTime: e.attackTime || 3000, position: idx + 1
+        }));
+    }
+
+    function renderCharacters() {
+        destroyAllLottie();
+        const container = document.getElementById('charactersContainer');
+        container.innerHTML = '';
+
+        allies.forEach((ally, idx) => {
+            const div = document.createElement('div');
+            div.className = `character ally-${ally.position}`;
+            div.id = `ally-${idx}`;
+
+            const hpBar = document.createElement('div');
+            hpBar.className = 'hp-bar-container';
+            hpBar.innerHTML = `<div class="hp-bar-fill ally-hp" style="width:100%"></div>`;
+            div.appendChild(hpBar);
+
+            const wrap = document.createElement('div');
+            wrap.className = 'character-wrap';
+
+            const animDiv = document.createElement('div');
+            animDiv.className = 'character-anim';
+
+            const spriteImg = document.createElement('img');
+            spriteImg.className = 'character-sprite';
+            spriteImg.src = ally.sprite || 'images/default_icon.png';
+            spriteImg.onerror = () => { spriteImg.src = 'images/default_icon.png'; };
+
+            const deadImg = document.createElement('img');
+            deadImg.className = 'character-dead-img';
+            deadImg.src = ally.sprite || 'images/default_icon.png';
+            deadImg.onerror = () => { deadImg.src = 'images/default_icon.png'; };
+
+            applyImgConst(spriteImg, ally.sprite);
+            applyImgConst(deadImg, ally.sprite);
+
+            wrap.appendChild(animDiv); wrap.appendChild(spriteImg); wrap.appendChild(deadImg);
+            div.appendChild(wrap);
+            container.appendChild(div);
+
+            initLottie(ally.id, animDiv, ally.attackAnimPath, ally.skillAnimPath);
+
+            if (ally.attackAnimPath) {
+                animDiv.style.display = 'block'; spriteImg.style.display = 'none'; deadImg.style.display = 'none';
+            } else {
+                animDiv.style.display = 'none'; spriteImg.style.display = 'block'; deadImg.style.display = 'none';
+            }
+        });
+
+        enemies.forEach((enemy, idx) => {
+            const div = document.createElement('div');
+            div.className = enemy.isBoss ? 'character enemy-boss' : `character enemy-${enemy.position}`;
+            div.id = `enemy-${idx}`;
+
+            const hpBar = document.createElement('div');
+            hpBar.className = 'hp-bar-container';
+            hpBar.innerHTML = `<div class="hp-bar-fill enemy-hp" style="width:100%"></div>`;
+            div.appendChild(hpBar);
+
+            const wrap = document.createElement('div');
+            wrap.className = 'character-wrap';
+
+            const animDiv = document.createElement('div');
+            animDiv.className = 'character-anim';
+
+            const spriteImg = document.createElement('img');
+            spriteImg.className = 'character-sprite';
+            spriteImg.src = enemy.sprite || 'images/default_enemy.png';
+            spriteImg.onerror = () => { spriteImg.src = 'images/default_enemy.png'; };
+
+            const deadImg = document.createElement('img');
+            deadImg.className = 'character-dead-img';
+            deadImg.src = enemy.sprite || 'images/default_enemy.png';
+            deadImg.onerror = () => { deadImg.src = 'images/default_enemy.png'; };
+
+            wrap.appendChild(animDiv); wrap.appendChild(spriteImg); wrap.appendChild(deadImg);
+            div.appendChild(wrap);
+            container.appendChild(div);
+
+            initLottie(enemy.id, animDiv, enemy.attackAnim, null);
+
+            if (enemy.attackAnim) {
+                animDiv.style.display = 'block'; spriteImg.style.display = 'none'; deadImg.style.display = 'none';
+            } else {
+                animDiv.style.display = 'none'; spriteImg.style.display = 'block'; deadImg.style.display = 'none';
+            }
+        });
+    }
+
+    function updateAllyHp(idx) {
+        const ally = allies[idx];
+        const el   = document.getElementById(`ally-${idx}`);
+        if (!el) return;
+        el.querySelector('.hp-bar-fill').style.width = `${Math.max(0, (ally.hp / ally.maxHp) * 100)}%`;
+        if (ally.hp <= 0) {
+            killLottie(ally.id);
+            el.classList.add('dead');
+            el.querySelector('.character-anim').style.display    = 'none';
+            el.querySelector('.character-sprite').style.display  = 'none';
+            el.querySelector('.character-dead-img').style.display = 'block';
+            updateSkillImage(ally.position);
+        }
+    }
+
+    function updateEnemyHp(idx) {
+        const enemy = enemies[idx];
+        const el    = document.getElementById(`enemy-${idx}`);
+        if (!el) return;
+        el.querySelector('.hp-bar-fill').style.width = `${Math.max(0, (enemy.hp / enemy.maxHp) * 100)}%`;
+        if (enemy.hp <= 0) {
+            killLottie(enemy.id);
+            el.classList.add('dead');
+            el.querySelector('.character-anim').style.display    = 'none';
+            el.querySelector('.character-sprite').style.display  = 'none';
+            el.querySelector('.character-dead-img').style.display = 'block';
+        }
+    }
+
+    function calcDamage(rawAttack, targetDefense) {
+        const dmg = rawAttack * 100 / (100 + Math.max(0, targetDefense));
+        return Math.max(1, Math.floor(dmg));
+    }
+
+    function allyAttack(ally) {
+        if (!battleActive || ally.hp <= 0) return;
+        const alive = enemies.filter(e => e.hp > 0);
+        if (!alive.length) return;
+        const target = alive[Math.floor(Math.random() * alive.length)];
+        const raw = ally.attack * (0.9 + Math.random() * 0.2);
+        target.hp -= calcDamage(raw, target.defense);
+        updateEnemyHp(enemies.indexOf(target));
+        checkBattleEnd();
+    }
+
+    function enemyAttack(enemy) {
+        if (!battleActive || enemy.hp <= 0) return;
+        const alive = allies.filter(a => a.hp > 0);
+        if (!alive.length) return;
+        const target = alive[Math.floor(Math.random() * alive.length)];
+        const raw = enemy.attack * (0.9 + Math.random() * 0.2);
+        target.hp -= calcDamage(raw, target.defense);
+        updateAllyHp(allies.indexOf(target));
+        checkBattleEnd();
+    }
+
+    function startAllyAutoAttacks() {
+        allies.forEach((ally, i) => {
+            if (!ally.attackTime) return;
+            allyIntervals.push(setInterval(() => {
+                if (battleActive && allies[i].hp > 0) allyAttack(allies[i]);
+            }, ally.attackTime));
+        });
+    }
+
+    function startEnemyAutoAttacks() {
+        enemies.forEach((enemy, i) => {
+            enemyIntervals.push(setInterval(() => {
+                if (battleActive && enemies[i].hp > 0) enemyAttack(enemies[i]);
+            }, enemy.attackTime));
+        });
+    }
+
+    function stopAllAutoAttacks() {
+        allyIntervals.forEach(clearInterval);
+        enemyIntervals.forEach(clearInterval);
+        allyIntervals = []; enemyIntervals = [];
+    }
+
+    function showBuffToast(text, color) {
+        const toast = document.createElement('div');
+        toast.className = 'buff-toast';
+        toast.textContent = text;
+        toast.style.color = color || '#fff';
+        toast.style.left  = '45%';
+        toast.style.top   = '200px';
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 2000);
+    }
+
+    function useSkill(allyIndex) {
+        const ally = allies[allyIndex];
+        if (!battleActive || ally.hp <= 0 || ally.currentCooldown > 0) return;
+
+        const aliveEnemies = enemies.filter(e => e.hp > 0);
+        const aliveAllies  = allies.filter(a => a.hp > 0);
+        
+        const totalEffectPercent = ally.skillEffectPercent + (ally.skillLevel - 1) * 5;
+        const X = totalEffectPercent / 100;
+
+        if (ally.role === 'attacker') {
+            if (!aliveEnemies.length) return;
+            aliveEnemies.forEach(target => {
+                const raw = ally.attack * (1 + X);
+                target.hp -= calcDamage(raw, target.defense);
+                updateEnemyHp(enemies.indexOf(target));
+            });
+            checkBattleEnd();
+            showBuffToast(`Атака ${ally.name} +${totalEffectPercent}%!`, '#854D25');
+        }
+
+        else if (ally.role === 'defender') {
+            if (ally.defenseBuffActive) {
+                showBuffToast('Защита уже усилена!', '#854D25');
+                return;
+            }
+            
+            const unbuffed = aliveAllies.filter(a => !a.defenseBuffActive);
+            if (!unbuffed.length) return;
+
+            unbuffed.forEach(a => {
+                const bonus = Math.floor(a.baseDefense * X);
+                a.defense += bonus;
+                a._defenseBonus = bonus;
+                a.defenseBuffActive = true;
+            });
+
+            showBuffToast(`Защита +${totalEffectPercent}%!`, '#854D25');
+
+            setTimeout(() => {
+                unbuffed.forEach(a => {
+                    if (!a.defenseBuffActive) return;
+                    a.defense = Math.max(a.baseDefense, a.defense - a._defenseBonus);
+                    a._defenseBonus = 0;
+                    a.defenseBuffActive = false;
+                    updateSkillImage(a.position);
+                });
+            }, ally.skillDuration);
+        }
+
+        else if (ally.role === 'support') {
+            if (ally.attackBuffActive) {
+                showBuffToast('Усиление уже активно!', '#854D25');
+                return;
+            }
+            
+            if (!aliveAllies.length) return;
+            const unbuffed = aliveAllies.filter(a => !a.attackBuffActive);
+            if (!unbuffed.length) return;
+
+            const attackBonusEach = Math.floor((ally.hp * X) / unbuffed.length);
+            const defXHalf = X / 2;
+
+            unbuffed.forEach(a => {
+                const defBonus = Math.floor(a.baseDefense * defXHalf);
+                a.attack += attackBonusEach;
+                a.defense += defBonus;
+                a._supportAttackBonus = attackBonusEach;
+                a._supportDefenseBonus = defBonus;
+                a.attackBuffActive = true;
+            });
+
+            showBuffToast(`Атака и защита +${totalEffectPercent}%!`, '#854D25');
+
+            setTimeout(() => {
+                unbuffed.forEach(a => {
+                    if (!a.attackBuffActive) return;
+                    a.attack = Math.max(a.baseAttack, a.attack - a._supportAttackBonus);
+                    a.defense = Math.max(a.baseDefense, a.defense - a._supportDefenseBonus);
+                    a._supportAttackBonus = 0;
+                    a._supportDefenseBonus = 0;
+                    a.attackBuffActive = false;
+                    updateSkillImage(a.position);
+                });
+            }, ally.skillDuration);
+        }
+
+        if (ally.skillAnimPath) playSkillAnim(ally.id);
+
+        ally.currentCooldown = ally.skillCooldown / 1000;
+        updateSkillImage(ally.position);
+        startCooldownTimer(ally.position);
+    }
+
+    function updateSkillImage(position) {
+        const ally = allies[position - 1];
+        if (!ally) return;
+        const img = document.getElementById(`skillImg${position}`);
+        if (!img) return;
+        
+        let off = ally.currentCooldown > 0 || ally.hp <= 0;
+        
+        if (ally.role === 'defender' && ally.defenseBuffActive) {
+            off = true;
+        }
+        if (ally.role === 'support' && ally.attackBuffActive) {
+            off = true;
+        }
+        
+        img.classList.toggle('disabled', off);
+        img.classList.toggle('ready', !off);
+    }
+
+    function startCooldownTimer(position) {
+        const tick = () => {
+            const ally = allies[position - 1];
+            if (!ally) return;
+            if (ally.currentCooldown > 0 && battleActive) {
+                ally.currentCooldown -= 0.5;
+                if (ally.currentCooldown > 0) { setTimeout(tick, 500); return; }
+            }
+            updateSkillImage(position);
+        };
+        setTimeout(tick, 500);
+    }
+
+    function renderSkillImages() {
+        allies.forEach((ally, i) => {
+            const img   = document.getElementById(`skillImg${ally.position}`);
+            const badge = document.getElementById(`roleBadge${ally.position}`);
+            if (!img) return;
+            
+            img.src = ally.skillIcon;
+            img.style.display = 'block';
+            img.alt = `Способность ${ally.name}`;
+            img.onerror = () => { img.src = 'images/default_skill.png'; };
+            
+            let off = ally.currentCooldown > 0 || ally.hp <= 0;
+            if (ally.role === 'defender' && ally.defenseBuffActive) off = true;
+            if (ally.role === 'support' && ally.attackBuffActive) off = true;
+            
+            img.classList.toggle('disabled', off);
+            img.classList.toggle('ready', !off);
+            img.onclick = () => {
+                waitForSoundManager(sm => sm.playSfx('big'));
+                useSkill(i);
+            };
+        });
+    }
+
+    function checkBattleEnd() {
+        if (!allies.some(a => a.hp > 0))  { endBattle(false); return; }
+        if (!enemies.some(e => e.hp > 0)) { endBattle(true);  api.updateQuest('battle_wins', 1); }
+    }
+
+    async function endBattle(isWin) {
+        if (!battleActive) return;
+        battleActive = false;
+        stopAllAutoAttacks();
+        destroyAllLottie();
+        try {
+            const result = await api.startBattle(stageId, teamIds, isWin);
+            sessionStorage.setItem('battleResult', JSON.stringify({
+                isWin, stageId,
+                rewards: result.rewards,
+                updatedUser: result.updatedUser
+            }));
+        } catch (e) {
+            console.error('Ошибка наград:', e);
+            sessionStorage.setItem('battleResult', JSON.stringify({
+                isWin, stageId,
+                rewards: { gems: 0, coins: 0, leveling_materials: 0 },
+                error: true
+            }));
+        }
+        window.location.href = 'battle-result.html';
+    }
+
+    document.getElementById('backBtn').onclick = () => {
+        waitForSoundManager(sm => sm.navigate('map.html', 'big'));
+    };
+
+    async function init() {
+        try { await loadAllies(); } catch (e) { console.error('Ошибка загрузки союзников:', e); }
+        loadEnemies();
+        renderCharacters();
+        renderSkillImages();
+        startAllyAutoAttacks();
+        startEnemyAutoAttacks();
+    }
+
+    init();
+    </script>
+</body>
+</html>

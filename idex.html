@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+   <meta charset="UTF-8">
+   <title>Parallax Forest</title>
+   <style>
+        @import url('https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&display=swap');
+
+        .static-icon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-55%, -80%);
+            z-index: 20;
+            pointer-events: none;
+            max-width: 500px;
+            width: 80%;
+            height: auto;
+        }
+
+        .my-button-reg {
+            position: fixed;
+            bottom: 150px;
+            left: 50%;
+            transform: translateX(calc(-40% + 150px));
+            width: 275px;
+            z-index: 999;
+            transition: transform 0.3s ease;
+        }
+
+        .my-button-reg:hover {
+            transform: translateX(calc(-40% + 150px)) scale(1.05);
+        }
+
+        .my-button-login {
+            position: fixed;
+            bottom: 150px;
+            left: 50%;
+            transform: translateX(calc(-70% - 150px));
+            width: 275px;
+            z-index: 999;
+            transition: transform 0.3s ease;
+        }
+
+        .my-button-login:hover {
+            transform: translateX(calc(-70% - 150px)) scale(1.05);
+        }
+
+        .panel-btn {
+            width: 200px;
+            height: auto;
+            cursor: pointer;
+            border: none;
+            background: none;
+            padding: 0;
+            transition: transform 0.3s ease;
+            position: relative;
+        }
+
+        .panel-btn img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .panel-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .panel-buttons {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        #btn1 {
+            position: absolute;
+            top: 525px;
+            left: 450px;
+            width: 225px;
+        }
+
+        #btn2 {
+            position: absolute;
+            top: 525px;
+            left: 325px;
+            width: 75px;
+        }
+
+        #loginBtn1 {
+            position: absolute;
+            top: 525px;
+            left: 450px;
+            width: 225px;
+        }
+
+        #loginBtn2 {
+            position: absolute;
+            top: 525px;
+            left: 325px;
+            width: 75px;
+        }
+
+        .panel-image {
+            width: 900px;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -60%);
+            display: none;
+            z-index: 1000;
+        }
+
+        .login-panel-image {
+            width: 900px;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -60%);
+            display: none;
+            z-index: 1000;
+            }
+
+        .panel-bg {
+            width: 900px;
+            height: auto;
+            display: block;
+        }
+
+        .wrapper {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -60%);
+            z-index: 1001;
+            display: none;
+            width: 900px;
+            height: 600px; 
+            pointer-events: none;
+        }
+ 
+        .login-wrapper {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -60%);
+            z-index: 1001;
+            display: none;
+            width: 900px;
+            height: 500px; 
+            pointer-events: none;
+        }
+
+        .input-box {
+            width: 350px;
+            height: 60px;
+            pointer-events: auto;
+            position: absolute;
+        }
+
+        .input-box input {
+            width: 120%;
+            height: 120%;
+            background: white;
+            border: 2px solid #8B5A2B;
+            border-radius: 15px;
+            padding: 0 20px;
+            font-size: 18px;
+            font-family: 'Jost', sans-serif;
+            color: #333;
+            box-sizing: border-box;
+        }
+
+        .input-box input:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+
+        .input-box input::placeholder {
+            color: #999;
+            font-family: 'Jost', sans-serif;
+        }
+
+        .wrapper .input-box:first-child {
+            top: 225px;
+            left: 275px;
+        }
+
+        .wrapper .input-box:nth-child(2) {
+            top: 307px;
+            left: 275px;
+        }
+
+        .wrapper .input-box:last-child {
+            top: 390px;
+            left: 275px;
+        }
+
+        .login-wrapper .input-box.login-username {
+            position: absolute;
+            top: 190px;
+            left: 275px;
+        }
+
+        .login-wrapper .input-box.login-password {
+            position: absolute;
+            top: 290px;
+            left: 275px;
+        }
+
+        .static-icon img {
+            width: 100%;
+            height: auto;
+            display: block;
+            filter: drop-shadow(0 2px 5px rgba(0,0,0,0.5));
+        }
+
+        body {
+            padding: 0;
+            margin: 0;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+        }   
+
+        .scene {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            background: url(1.svg) center no-repeat;
+            background-size: cover;
+            overflow: hidden;
+        }
+
+        .carousel-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            pointer-events: none;
+        }
+
+        .carousel-item {
+            flex-shrink: 0;
+            width: 100%;
+            height: 100vh;
+            position: relative;
+        }
+
+        .carousel-item img {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            object-fit: cover;
+            object-position: center bottom;
+        }
+
+        .layer-1 .carousel-item { animation: scrollLeft 40s linear infinite; }
+        .layer-2 .carousel-item { animation: scrollLeft 30s linear infinite; }
+        .layer-3 .carousel-item { animation: scrollLeft 20s linear infinite; }
+        .layer-4 .carousel-item { animation: scrollLeft 15s linear infinite; }
+        .layer-5 .carousel-item { animation: scrollLeft 10s linear infinite; }
+
+        @keyframes scrollLeft {
+            0%   { transform: translateX(0); }
+            100% { transform: translateX(-100%); }
+        }
+
+        .layer-1 img,
+        .layer-2 img,
+        .layer-3 img,
+        .layer-4 img,
+        .layer-5 img {
+            height: 100vh;
+            bottom: 0;
+        }
+
+        .hint-btn {
+            position: absolute;
+            right: -120px;
+            top: 35px;
+            transform: translateY(-50%);
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0;
+            z-index: 1010;
+            pointer-events: auto;
+            transition: transform 0.2s ease;
+        }
+
+        .hint-btn img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .hint-btn:hover {
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .hint-tooltip {
+            position: fixed;
+            background: rgba(0, 0, 0, 0.9);
+            color: #fff;
+            padding: 12px 18px;
+            border-radius: 10px;
+            font-family: 'Jost', sans-serif;
+            font-size: 14px;
+            max-width: 250px;
+            z-index: 2000;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            border: 2px solid #8B5A2B;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .hint-tooltip.show {
+            opacity: 1;
+        }
+
+        .hint-tooltip::before {
+            content: '';
+            position: absolute;
+            left: -10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 0;
+            height: 0;
+            border: 10px solid transparent;
+            border-right-color: rgba(0, 0, 0, 0.9);
+        }
+
+        @keyframes buffFloat {
+            0%   { opacity: 1; transform: translateX(-50%) translateY(0); }
+            80%  { opacity: 1; }
+            100% { opacity: 0; transform: translateX(-50%) translateY(-60px); }
+        }
+
+        * {
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+        }
+
+   </style>
+</head>
+<body>
+
+    <!-- форма регистрации -->
+    <div class="wrapper">
+        <form action="">
+            <div class="input-box">
+                <input type="text" placeholder="E-mail" required>
+                <button type="button" class="hint-btn" data-field="email">
+                    <img src="images/ButtonsReg/вопрос.svg" alt="подсказка">
+                </button>
+            </div>
+            <div class="input-box">
+                <input type="text" placeholder="Имя пользователя" required>
+                <button type="button" class="hint-btn" data-field="username">
+                    <img src="images/ButtonsReg/вопрос.svg" alt="подсказка">
+                </button>
+            </div>
+            <div class="input-box">
+                <input type="password" placeholder="Пароль" required>
+                <button type="button" class="hint-btn" data-field="password">
+                    <img src="images/ButtonsReg/вопрос.svg" alt="подсказка">
+                </button>
+            </div>
+        </form>
+    </div>
+    <img src="images/ButtonsReg/регистрация кнопка.svg" alt="Кнопка" id="myButtonReg" class="my-button-reg" />
+
+    <!-- менюшка регистрации -->
+    <div id="panelImage" class="panel-image">
+        <img src="images/регистрация.svg" alt="Табло" class="panel-bg" />
+        <div class="panel-buttons">
+            <button class="panel-btn" id="btn1">
+                <img src="images/ButtonsReg/кнопка далее.svg" alt="button-next" />
+            </button>
+            <button class="panel-btn" id="btn2">
+                <img src="images/ButtonsReg/кнопка назад.svg" alt="button-prev" />
+            </button>
+        </div>
+    </div>
+
+    <!-- форма входа -->
+    <div class="login-wrapper">
+        <form action="">
+            <div class="input-box login-username">
+                <input type="text" placeholder="Имя пользователя" required>
+                <button type="button" class="hint-btn" data-field="username">
+                    <img src="images/ButtonsReg/вопрос.svg" alt="подсказка">
+                </button>
+            </div>
+            <div class="input-box login-password">
+                <input type="password" placeholder="Пароль" required>
+                <button type="button" class="hint-btn" data-field="password">
+                    <img src="images/ButtonsReg/вопрос.svg" alt="подсказка">
+                </button>
+            </div>
+        </form>
+    </div>
+    <img src="images/ButtonsReg/вход кнопка.svg" alt="Кнопка входа" id="myButtonLogin" class="my-button-login" />
+
+    <!-- менюшка входа -->
+    <div id="loginPanelImage" class="login-panel-image">
+        <img src="images/табло входа.svg" alt="Табло входа" class="panel-bg" />
+        <div class="panel-buttons">
+            <button class="panel-btn" id="loginBtn1">
+                <img src="images/ButtonsReg/кнопка далее.svg" alt="button-login" />
+            </button>
+            <button class="panel-btn" id="loginBtn2">
+                <img src="images/ButtonsReg/кнопка назад.svg" alt="button-back" />
+            </button>
+        </div>
+    </div>
+
+    <div class="static-icon">
+        <img src="images/FirstParlx/иконкаГлавная4.svg" alt="Static Icon" />
+    </div>
+
+    <!-- параллакс -->
+    <div class="scene" id="scene">
+        <div class="carousel-layer layer-1">
+            <div class="carousel-item"><img src="images/FirstParlx/2.svg" alt="" /></div>
+            <div class="carousel-item"><img src="images/FirstParlx/2.svg" alt="" /></div>
+        </div>
+        <div class="carousel-layer layer-2">
+            <div class="carousel-item"><img src="images/FirstParlx/3.svg" alt="" /></div>
+            <div class="carousel-item"><img src="images/FirstParlx/3.svg" alt="" /></div>
+        </div>
+        <div class="carousel-layer layer-3">
+            <div class="carousel-item"><img src="images/FirstParlx/4.svg" alt="" /></div>
+            <div class="carousel-item"><img src="images/FirstParlx/4.svg" alt="" /></div>
+        </div>
+        <div class="carousel-layer layer-4">
+            <div class="carousel-item"><img src="images/FirstParlx/5.svg" alt="" /></div>
+            <div class="carousel-item"><img src="images/FirstParlx/5.svg" alt="" /></div>
+        </div>
+        <div class="carousel-layer layer-5">
+            <div class="carousel-item"><img src="images/FirstParlx/6.svg" alt="" /></div>
+            <div class="carousel-item"><img src="images/FirstParlx/6.svg" alt="" /></div>
+        </div>
+    </div>
+
+    <script type="module">
+    import api from './js/apiClient.js';
+
+    const regButton        = document.getElementById('myButtonReg');
+    const loginButton      = document.getElementById('myButtonLogin');
+    const panelImage       = document.getElementById('panelImage');
+    const wrapper          = document.querySelector('.wrapper');
+    const btn1             = document.getElementById('btn1');
+    const btn2             = document.getElementById('btn2');
+    const emailInput       = document.querySelector('.wrapper .input-box:first-child input');
+    const loginInput       = document.querySelector('.wrapper .input-box:nth-child(2) input');
+    const passwordInput    = document.querySelector('.wrapper .input-box:last-child input');
+    const loginPanelImage  = document.getElementById('loginPanelImage');
+    const loginWrapper     = document.querySelector('.login-wrapper');
+    const loginUsernameInput = document.querySelector('.login-username input');
+    const loginPasswordInput = document.querySelector('.login-password input');
+    const loginBtn1        = document.getElementById('loginBtn1');
+    const loginBtn2        = document.getElementById('loginBtn2');
+
+    function showToast(message, isSuccess = false) {
+        const toast = document.createElement('div');
+        toast.textContent = message;
+        toast.style.cssText = `
+            position: fixed;
+            top: 100px;
+            left: 55%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            font-family: 'Jost', sans-serif;
+            font-size: 22px;
+            font-weight: 700;
+            color: ${isSuccess ? '#4a7c2f' : '#c65149'};
+            pointer-events: none;
+            white-space: nowrap;
+            animation: buffFloat 2s ease forwards;
+        `;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 2000);
+    }
+
+    function closeAllPanels() {
+        panelImage.style.display      = 'none';
+        wrapper.style.display         = 'none';
+        loginPanelImage.style.display = 'none';
+        loginWrapper.style.display    = 'none';
+        regButton.style.display       = 'block';
+        loginButton.style.display     = 'block';
+    }
+
+    function showRegisterPanel() {
+        panelImage.style.display = 'block';
+        wrapper.style.display    = 'block';
+        regButton.style.display  = 'none';
+        loginButton.style.display = 'none';
+        emailInput.value    = '';
+        loginInput.value    = '';
+        passwordInput.value = '';
+    }
+
+    function showLoginPanel() {
+        loginPanelImage.style.display = 'block';
+        loginWrapper.style.display    = 'block';
+        regButton.style.display       = 'none';
+        loginButton.style.display     = 'none';
+        loginUsernameInput.value = '';
+        loginPasswordInput.value = '';
+    }
+
+    regButton.onclick = showRegisterPanel;
+    btn2.onclick      = closeAllPanels;
+
+    btn1.onclick = async () => {
+        const username = loginInput.value.trim();
+        const email    = emailInput.value.trim();
+        const password = passwordInput.value.trim();
+
+        if (!username || !email || !password) {
+            showToast('Заполните все поля!');
+            return;
+        }
+        if (username.length < 3) {
+            showToast('Имя пользователя должно содержать минимум 3 символа');
+            return;
+        }
+        if (username.length > 30) {
+            showToast('Имя пользователя должно содержать максимум 30 символов');
+            return;
+        }
+        if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+            showToast('Имя пользователя может содержать только буквы (A-Z, a-z) и цифры (0-9)');
+            return;
+        }
+        if (!/^[^\s@]+@([^\s@.,]+\.)+[^\s@.,]{2,}$/.test(email)) {
+            showToast('Введите корректный email');
+            return;
+        }
+        if (password.length < 6) {
+            showToast('Пароль слишком короткий');
+            return;
+        }
+        if (password.length > 100) {
+            showToast('Пароль слишком длинный');
+            return;
+        }
+        if (!/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/[0-9]/.test(password)) {
+            showToast('Пароль должен содержать хотя бы одну заглавную букву, одну строчную букву и одну цифру');
+            return;
+        }
+
+        try {
+            const result = await api.register(username, email, password);
+            api.setToken(result.token);
+            showToast('Регистрация успешна!', true);
+            window.location.href = 'game.html';
+        } catch (error) {
+            if (error.message.includes('email') || error.message.includes('Email')) {
+                showToast('Пользователь с таким email уже существует');
+            } else if (error.message.includes('username') || error.message.includes('Имя')) {
+                showToast('Пользователь с таким именем уже существует');
+            } else {
+                showToast('Ошибка регистрации: ' + error.message);
+            }
+        }
+    };
+
+    loginButton.onclick = showLoginPanel;
+    loginBtn2.onclick   = closeAllPanels;
+
+    loginBtn1.onclick = async () => {
+        const username = loginUsernameInput.value.trim();
+        const password = loginPasswordInput.value.trim();
+
+        if (!username || !password) {
+            showToast('Заполните все поля!');
+            return;
+        }
+        if (username.length < 3) {
+            showToast('Имя пользователя должно содержать минимум 3 символа');
+            return;
+        }
+        if (username.length > 30) {
+            showToast('Имя пользователя должно содержать максимум 30 символов');
+            return;
+        }
+        if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+            showToast('Имя пользователя может содержать только буквы (A-Z, a-z) и цифры (0-9)');
+            return;
+        }
+        if (password.length < 6) {
+            showToast('Пароль слишком короткий');
+            return;
+        }
+        if (password.length > 100) {
+            showToast('Пароль слишком длинный');
+            return;
+        }
+
+        try {
+            const result = await api.login(username, password);
+            api.setToken(result.token);
+            showToast('Добро пожаловать, ' + username + '!', true);
+            window.location.href = 'game.html';
+        } catch (error) {
+            const msg = error.message.toLowerCase();
+            if (msg.includes('неверный') || msg.includes('invalid')) {
+                showToast('Неверный логин или пароль, проверьте введённые данные!');
+            } else if (msg.includes('not found') || msg.includes('не найден')) {
+                showToast('Пользователь с таким логином не найден, сначала зарегистрируйтесь!');
+            } else {
+                showToast('Ошибка входа: ' + error.message);
+            }
+        }
+    };
+
+    const hintTexts = {
+        'email':    '**Правила для e-mail:**\n\n• Должен содержать символ @\n• Домен после @ (например: gmail.com)\n• Не должен содержать пробелы\n• Пример: name@domain.ru',
+        'username': '**Правила для имени пользователя:**\n\n• От 3 до 30 символов\n• Только латиница (A-Z, a-z) и цифры (0-9)\n• Без пробелов\n• Пример: Ivanov_Ivan1',
+        'password': '**Правила для пароля:**\n\n• От 6 до 100 символов\n• Латиница (A-Z, a-z), цифры (0-9) и спецсимволы\n• Минимум одна заглавная буква, одна строчная буква и одна цифра\n• Пример: Password1',
+    };
+
+    let currentTooltip = null;
+
+    function showHint(field, buttonElement) {
+        if (currentTooltip) currentTooltip.remove();
+
+        const tooltip = document.createElement('div');
+        tooltip.className = 'hint-tooltip';
+        tooltip.innerHTML = hintTexts[field]
+            .replace(/\n/g, '<br>')
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+        const rect = buttonElement.getBoundingClientRect();
+        tooltip.style.left = (rect.left - 260) + 'px';
+        tooltip.style.top  = (rect.top - 10)   + 'px';
+
+        document.body.appendChild(tooltip);
+        setTimeout(() => tooltip.classList.add('show'), 10);
+        currentTooltip = tooltip;
+
+        setTimeout(() => {
+            if (currentTooltip === tooltip) {
+                tooltip.classList.remove('show');
+                setTimeout(() => {
+                    if (currentTooltip === tooltip) {
+                        tooltip.remove();
+                        currentTooltip = null;
+                    }
+                }, 300);
+            }
+        }, 5000);
+    }
+
+    document.querySelectorAll('.hint-btn').forEach(btn => {
+        btn.addEventListener('click', e => {
+            e.stopPropagation();
+            showHint(btn.getAttribute('data-field'), btn);
+        });
+    });
+
+    document.addEventListener('click', e => {
+        if (!e.target.closest('.hint-btn') && currentTooltip) {
+            currentTooltip.classList.remove('show');
+            setTimeout(() => {
+                if (currentTooltip) { currentTooltip.remove(); currentTooltip = null; }
+            }, 300);
+        }
+    });
+
+    document.addEventListener('selectstart',  e => e.preventDefault());
+    document.addEventListener('contextmenu',  e => e.preventDefault());
+    document.addEventListener('dragstart',    e => e.preventDefault());
+    document.addEventListener('copy',         e => e.preventDefault());
+    document.addEventListener('cut',          e => e.preventDefault());
+    document.addEventListener('paste',        e => e.preventDefault());
+    document.addEventListener('keydown', e => {
+        if ((e.ctrlKey || e.metaKey) && ['s','c','x','v'].includes(e.key)) e.preventDefault();
+        if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && ['I','C','J'].includes(e.key)) || (e.ctrlKey && e.key === 'U')) e.preventDefault();
+    });
+    </script>
+</body>
+</html>

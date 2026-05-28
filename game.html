@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Игра</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&family=Rubik:ital,wght@0,300..900;1,300..900&display=swap');
+
+        * {
+            margin: 0; padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Rubik', sans-serif;
+            width: 100%; 
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .game-bg {
+            position: fixed; 
+            top: 0; 
+            left: 0;
+            width: 100%; 
+            height: 100vh;
+            z-index: 0; 
+            pointer-events: none;
+        }
+        .game-bg img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+            display: block; 
+        }
+
+        .game-content {
+            position: relative; 
+            z-index: 1;
+            width: 100%; 
+            height: 100vh;
+        }
+
+        /* инт. элементы */
+        .interactive-elements {
+            position: absolute; 
+            top: 0; 
+            left: 0;
+            width: 100%; 
+            height: 100%;
+            z-index: 15; 
+            pointer-events: none;
+        }
+
+        .clickable-area {
+            position: absolute;
+            transition: transform 0.3s ease;
+            pointer-events: auto;
+        }
+
+        .clickable-area:hover  {
+            transform: scale(1.05); 
+        }
+        .clickable-area:active { 
+            transform: scale(0.95); 
+        }
+        .clickable-area.disabled {
+            opacity: 0.5; 
+            pointer-events: none;
+        }
+
+        .clickable-area img { width: 100%; height: auto; display: block; }
+
+        .cloud-area     { top: 70px;     left: 450px;   width: 300px; }
+        .scarecrow-area { bottom: 350px; right: 50px;    width: 200px; }
+        .bush-area      { bottom: 170px; left: 500px;  width: 150px; }
+
+        /* дождь */
+        .rain-overlay {
+            position: fixed; 
+            top: 0; 
+            left: 0;
+            width: 100%; 
+            height: 100vh;
+            z-index: 50; 
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.8s ease;
+            background:
+                repeating-linear-gradient(
+                    175deg,
+                    transparent 0px, transparent 2px,
+                    rgba(120, 180, 255, 0.18) 2px, rgba(120, 180, 255, 0.18) 3px,
+                    transparent 3px, transparent 20px
+                ),
+                rgba(30, 50, 90, 0.35);
+            background-size: 30px 80px, 100% 100%;
+            animation: rainMove 0.4s linear infinite;
+            animation-play-state: paused;
+        }
+
+        .rain-overlay.active {
+            opacity: 1;
+            animation-play-state: running;
+        }
+
+        @keyframes rainMove {
+            from { background-position: 0 0, 0 0; }
+            to   { background-position: 30px 80px, 0 0; }
+        }
+
+        .rain-overlay::after {
+            content: '';
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%;
+            background: repeating-linear-gradient(
+                170deg,
+                transparent 0px, transparent 4px,
+                rgba(180, 220, 255, 0.10) 4px, rgba(180, 220, 255, 0.10) 5px,
+                transparent 5px, transparent 35px
+            );
+            background-size: 50px 120px;
+            animation: rainMove2 0.6s linear infinite;
+        }
+
+        @keyframes rainMove2 {
+            from { background-position: 0 0; }
+            to   { background-position: 50px 120px; }
+        }
+
+
+        /* награда */
+        .reward-notification {
+            position: fixed; top: 30%; left: 50%;
+            transform: translateX(-50%) translateY(-10px) scale(0.9);
+            background: #F4E4C2;
+            border: 3px solid #854D25;
+            border-radius: 40px;
+            padding: 12px 28px;
+            font-size: 22px; 
+            font-weight: 800;
+            color: #854D25;
+            z-index: 300; 
+            white-space: nowrap;
+            font-family: 'Rubik', sans-serif;
+            opacity: 0; 
+            pointer-events: none;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        .reward-notification.show {
+            opacity: 1; 
+            transform: translateX(-50%) translateY(0) scale(1);
+        }
+
+        /* кнопки */
+        .game-btn {
+            position: absolute; 
+            border: none; 
+            background: none; 
+            padding: 0;
+            transition: transform 0.3s ease;
+        }
+
+        .game-btn img { 
+            width: 100%; 
+            height: auto; 
+            display: block; 
+        }
+        .game-btn:hover { 
+            transform: scale(1.05); 
+        }
+
+        #btnMap    { bottom: 30px;  right: 30px;  width: 170px; }
+        #btnGacha  { bottom: 30px;  left: 30px;   width: 170px; }
+        #btnBook   { bottom: 30px;  right: 215px; width: 170px; }
+        #btnQuests { bottom: 230px; left: 30px;   width: 170px; }
+
+        .close-btn {
+            position: absolute; 
+            top: 10px; 
+            left: 30px;
+            width: 80px; 
+            transition: transform 0.3s ease;
+        }
+
+        .close-btn:hover { 
+            transform: scale(1.1); 
+        }
+
+        .close-btn img { 
+            width: 100%; 
+            height: auto; 
+            display: block; 
+        }
+
+        /* вылюты */
+        .currency-seed { /* семечки */
+            position: absolute;
+            top: 10px;
+            right: 50px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(89, 124, 79, 1);
+            border-radius: 30px;
+            padding: 8px 20px;
+            width: 180px;
+            z-index: 10;
+        }
+
+        .currency-water { /* капля */
+            position: absolute;
+            top: 10px;
+            right: 250px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(89, 124, 79, 1);
+            border-radius: 30px;
+            padding: 8px 20px;
+            width: 180px;
+            z-index: 10;
+        }
+       
+        .currency-gold { /* звезда */
+            position: absolute;
+            top: 10px;
+            right: 450px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(89, 124, 79, 1);
+            border-radius: 30px;
+            padding: 8px 20px;
+            width: 180px;
+            z-index: 10;
+        }
+        .currency-water .currency-icon { width: 30px;  }
+        .currency-seed .currency-icon { width: 40px;  }
+        .currency-gold .currency-icon { width: 50px;  }
+
+        .currency-amount {
+            font-size: 24px;
+            font-family: 'Rubik', sans-serif;
+            font-weight: bold;
+            color: #ffffff;
+            margin: 0;
+            line-height: 1;
+        }
+
+        .toast-notification {
+            position: fixed; 
+            top: 20px; 
+            right: 20px;
+            background: linear-gradient(135deg, #4a3520 0%, #3a2510 100%);
+            color: #f5e6d3; 
+            border-radius: 12px;
+            z-index: 10000; 
+            font-family: 'Jost', sans-serif; font-size: 16px;
+            max-width: 400px; 
+            min-width: 300px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border-left: 4px solid #705e3d;
+            transform: translateX(120%);
+            transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .toast-notification.show  { 
+            transform: translateX(0); 
+        }
+        
+        .toast-notification:hover { 
+            transform: translateX(-5px); 
+        }
+        
+        .toast-content { 
+            display: flex; 
+            align-items: center; 
+            padding: 15px 20px; 
+            gap: 12px; }
+        
+        .toast-icon    { 
+            font-size: 24px; 
+            flex-shrink: 0; 
+            animation: shake 0.5s ease; 
+        }
+
+        .toast-message { 
+            flex: 1; 
+            line-height: 1.4; 
+        }
+        
+        .toast-close {
+            background: none; 
+            border: none; 
+            color: #f5e6d3;
+            font-size: 20px; 
+            width: 24px; 
+            height: 24px; 
+            border-radius: 50%;
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+        }
+
+        .toast-close:hover { 
+            background: rgba(139, 90, 43, 0.5);
+        }
+        .toast-progress { 
+            height: 4px; 
+            background: #705e3d; 
+            border-radius: 0 0 12px 12px; 
+            overflow: hidden; }
+        
+            .toast-progress-bar {
+            height: 100%; width: 100%;
+            background: linear-gradient(90deg, #8bc58b, #88ff88);
+            animation: progress 3s linear forwards;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: rotate(0deg);   }
+            25%       { transform: rotate(10deg);  }
+            75%       { transform: rotate(-10deg); }
+        }
+        @keyframes progress { from { width: 100%; } to { width: 0%; } }
+    </style>
+</head>
+<body>
+    <div class="game-bg">
+        <img src="images/MainScreen/общий фон.svg" alt="Фон игры" />
+    </div>
+
+    <div id="rainOverlay"        class="rain-overlay"></div>
+    <div id="rewardNotification" class="reward-notification"></div>
+
+    <div class="interactive-elements">
+        <div class="clickable-area cloud-area"     id="cloudArea">
+            <img id="cloudImg"     src="images/interactive/облако_светлое.svg" alt="Облако">
+        </div>
+        <div class="clickable-area scarecrow-area" id="scarecrowArea">
+            <img id="scarecrowImg" src="images/interactive/пугало_пусто.svg"   alt="Пугало">
+        </div>
+        <div class="clickable-area bush-area"      id="bushArea">
+            <img id="bushImg"      src="images/interactive/куст.svg"           alt="Куст">
+        </div>
+    </div>
+
+    <div class="game-content">
+        <div class="close-btn" id="closeBtn">
+            <img src="images/MainScreen/настройки.svg" alt="Настройки" />
+        </div>
+
+        <button class="game-btn" id="btnMap">
+            <img src="images/MainScreen/иконка карты.svg"   alt="Карта"   />
+        </button>
+        <button class="game-btn" id="btnGacha">
+            <img src="images/MainScreen/иконка гачи.svg"    alt="Гача"    />
+        </button>
+        <button class="game-btn" id="btnBook">
+            <img src="images/MainScreen/иконка книжки.svg"  alt="Книжка"  />
+        </button>
+        <button class="game-btn" id="btnQuests">
+            <img src="images/MainScreen/иконка квестов.svg" alt="Квесты"  />
+        </button>
+
+        <div class="currency-seed">
+            <img src="images/MainScreen/семечка.svg"       class="currency-icon" />
+            <span class="currency-amount" id="seedAmount">0</span>
+        </div>
+        <div class="currency-water">
+            <img src="images/MainScreen/иконка капли.svg"  class="currency-icon" />
+            <span class="currency-amount" id="waterAmount">0</span>
+        </div>
+        <div class="currency-gold">
+            <img src="images/MainScreen/иконка пыльцы.svg" class="currency-icon" />
+            <span class="currency-amount" id="goldAmount">0</span>
+        </div>
+    </div>
+
+    <script src="js/soundManager.js"></script>
+
+    <script type="module">
+    import api from './js/apiClient.js';
+
+    function waitForSoundManager(cb) {
+        if (window.soundManager && window.soundManager.sounds.music.game) {
+            cb(window.soundManager); return;
+        }
+        const t = setInterval(() => {
+            if (window.soundManager && window.soundManager.sounds.music.game) {
+                clearInterval(t); cb(window.soundManager);
+            }
+        }, 50);
+    }
+
+    function showToast(message) {
+        const toast = document.createElement('div');
+        toast.className = 'toast-notification';
+        toast.innerHTML = `
+            <div class="toast-content">
+                <div class="toast-message">${message}</div>
+                <button class="toast-close">✕</button>
+            </div>
+            <div class="toast-progress"><div class="toast-progress-bar"></div></div>
+        `;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.classList.add('show'), 10);
+        const close = () => {
+            toast.classList.remove('show');
+            setTimeout(() => { if (toast.parentNode) toast.remove(); }, 400);
+        };
+        toast.querySelector('.toast-close').addEventListener('click', close);
+        toast.addEventListener('click', e => { if (!e.target.closest('.toast-close')) close(); });
+        setTimeout(close, 3000);
+    }
+
+    function showReward(text, currency) {
+        const icons = {
+            gems:               'images/MainScreen/семечка.svg',
+            leveling_materials: 'images/MainScreen/иконка капли.svg',
+            coins:              'images/MainScreen/иконка пыльцы.svg'
+        };
+        const el = document.getElementById('rewardNotification');
+        el.innerHTML = icons[currency]
+            ? `<img src="${icons[currency]}" style="height:32px;vertical-align:middle;margin-right:8px;"> ${text}`
+            : text;
+        el.classList.add('show');
+        setTimeout(() => el.classList.remove('show'), 2000);
+    }
+
+    function getMoscowNow() {
+        return new Date(Date.now() + 3 * 60 * 60 * 1000);
+    }
+
+    function getMoscowDate() {
+        return getMoscowNow().toISOString().split('T')[0];
+    }
+
+    let state = {
+        cloud_last_claimed:     null,
+        scarecrow_last_claimed: null,
+        bush_last_claimed:      null
+    };
+
+    async function loadInteractiveState() {
+        try {
+            const raw = await api.getInteractiveState();
+            console.log('RAW ответ от API:', JSON.stringify(raw));
+            state = raw;
+            updateCloudUI();
+            updateScarecrowUI();
+            updateBushUI();
+        } catch (e) {
+            console.error('Ошибка загрузки состояния:', e);
+        }
+    }
+
+    function isCloudActive() {
+        //активна раз в день
+        return !state.cloud_last_claimed || state.cloud_last_claimed < getMoscowDate();
+    }
+
+    function isScarecrowActive() {
+        const msk  = getMoscowNow();
+        const date = msk.toISOString().split('T')[0];
+        const hour = String(msk.getUTCHours()).padStart(2, '0');
+        const key  = `${date}_${hour}`;
+        //активна раз в час
+        return !state.scarecrow_last_claimed || state.scarecrow_last_claimed !== key;
+    }
+
+    function isBushActive() {
+        const msk    = getMoscowNow();
+        const date   = msk.toISOString().split('T')[0];
+        const hour = msk.getUTCHours(); // было getHours()
+
+        const starts = [0, 8, 16];
+        const p      = [...starts].reverse().find(s => hour >= s);
+        const key    = `${date}_${p}`;
+        //активна 3 раза в день
+        return !state.bush_last_claimed || state.bush_last_claimed !== key;
+    }
+
+    function updateCloudUI() {
+        const active = isCloudActive();
+        document.getElementById('cloudImg').src = active
+            ? 'images/interactive/облако_темное.svg'
+            : 'images/interactive/облако_светлое.svg';
+        document.getElementById('rainOverlay').classList.toggle('active', active);
+        document.getElementById('cloudArea').style.pointerEvents = active ? 'auto' : 'none';
+        document.getElementById('cloudArea').style.cursor = active ? 'pointer' : 'default';
+    }
+
+    function updateScarecrowUI() {
+        const active = isScarecrowActive();
+        document.getElementById('scarecrowImg').src = active
+            ? 'images/interactive/пугало_птица.svg'
+            : 'images/interactive/пугало_пусто.svg';
+        document.getElementById('scarecrowArea').style.pointerEvents = active ? 'auto' : 'none';
+        document.getElementById('scarecrowArea').style.cursor = active ? 'pointer' : 'default';
+    }
+
+    function updateBushUI() {
+        const active = isBushActive();
+        document.getElementById('bushImg').src = active
+            ? 'images/interactive/сорняк.svg'
+            : 'images/interactive/куст.svg';
+        document.getElementById('bushArea').style.pointerEvents = active ? 'auto' : 'none';
+        document.getElementById('bushArea').style.cursor = active ? 'pointer' : 'default';
+    }
+
+    async function claimCloud() {
+        const area = document.getElementById('cloudArea');
+        area.classList.add('disabled');
+        try {
+            await api.addRewards({ gems: 200 });
+            await api.claimInteractive('cloud');
+             await api.updateQuest('interactions', 1);
+            await loadInteractiveState();
+            showReward('+200', 'gems');
+            await loadUserData();
+        } catch (e) {
+            console.error('Ошибка награды тучи:', e);
+        } finally {
+            setTimeout(() => area.classList.remove('disabled'), 1000);
+        }
+    }
+
+    async function claimScarecrow() {
+        const area = document.getElementById('scarecrowArea');
+        area.classList.add('disabled');
+        try {
+            await api.addRewards({ leveling_materials: 20 });
+            await api.claimInteractive('scarecrow');
+            await api.updateQuest('interactions', 1);
+            await loadInteractiveState();
+            showReward('+20', 'leveling_materials');
+            await loadUserData();
+        } catch (e) {
+            console.error('Ошибка награды пугала:', e);
+        } finally {
+            setTimeout(() => area.classList.remove('disabled'), 1000);
+        }
+    }
+
+    async function claimBush() {
+        const area = document.getElementById('bushArea');
+        area.classList.add('disabled');
+        try {
+            await api.addRewards({ coins: 50 });
+            await api.claimInteractive('bush');
+             await api.updateQuest('interactions', 1);
+            await loadInteractiveState();
+            showReward('+50', 'coins');
+            await loadUserData();
+        } catch (e) {
+            console.error('Ошибка награды куста:', e);
+        } finally {
+            setTimeout(() => area.classList.remove('disabled'), 1000);
+        }
+    }
+
+    async function loadUserData() {
+        try {
+            const { user } = await api.getProfile();
+            document.getElementById('seedAmount').textContent  = user.gems               || 0;
+            document.getElementById('waterAmount').textContent = user.leveling_materials || 0;
+            document.getElementById('goldAmount').textContent  = user.coins              || 0;
+        } catch (e) {
+            console.error('Ошибка загрузки профиля:', e);
+            window.location.href = 'index.html';
+        }
+    }
+
+    function initInteractive() {
+        loadInteractiveState();
+        setInterval(loadInteractiveState, 60_000);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        waitForSoundManager(sm => {
+            sm.loadSettings();
+            const lastType = sessionStorage.getItem('musicType') || 'game';
+            if (!sm.currentMusic || sm.currentMusic.paused) {
+                sm.playMusic(lastType);
+            }
+        });
+    });
+
+    document.getElementById('btnMap').onclick    = () => waitForSoundManager(sm => sm.navigate('map.html',      'big'));
+    document.getElementById('btnGacha').onclick  = () => waitForSoundManager(sm => sm.navigate('gacha.html',   'big'));
+    document.getElementById('btnBook').onclick   = () => waitForSoundManager(sm => sm.navigate('book.html',    'big'));
+    document.getElementById('btnQuests').onclick = () => waitForSoundManager(sm => sm.navigate('quests.html',  'big'));
+    document.getElementById('closeBtn').onclick  = () => waitForSoundManager(sm => sm.navigate('settings.html','small'));
+
+    document.getElementById('cloudArea').onclick     = claimCloud;
+    document.getElementById('scarecrowArea').onclick = claimScarecrow;
+    document.getElementById('bushArea').onclick      = claimBush;
+
+    loadUserData();
+    initInteractive();
+
+
+    document.addEventListener('contextmenu', e => e.preventDefault());
+    document.addEventListener('selectstart', e => e.preventDefault());
+    document.addEventListener('dragstart',   e => e.preventDefault());
+    document.addEventListener('copy',        e => e.preventDefault());
+    document.addEventListener('cut',         e => e.preventDefault());
+    document.addEventListener('paste',       e => e.preventDefault());
+    document.addEventListener('keydown', e => {
+        if ((e.ctrlKey || e.metaKey) && ['s','c','x','v'].includes(e.key)) e.preventDefault();
+        if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && ['I','C','J'].includes(e.key)) || (e.ctrlKey && e.key === 'U')) e.preventDefault();
+    });
+    </script>
+</body>
+</html>

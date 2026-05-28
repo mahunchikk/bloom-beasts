@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Результат битвы</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;700;900&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Rubik', sans-serif;
+            width: 100%;
+            height: 100vh;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            position: relative;
+        }
+
+        /* фон на всю страницу */
+        .game-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .game-bg img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* вылюты */
+        .currency-seed { /* семечки */
+            position: absolute;
+            top: 10px;
+            right: 50px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(89, 124, 79, 1);
+            border-radius: 30px;
+            padding: 8px 20px;
+            width: 180px;
+            z-index: 10;
+        }
+
+        .currency-water { /* капля */
+            position: absolute;
+            top: 10px;
+            right: 250px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(89, 124, 79, 1);
+            border-radius: 30px;
+            padding: 8px 20px;
+            width: 180px;
+            z-index: 10;
+        }
+       
+        .currency-gold { /* звезда */
+            position: absolute;
+            top: 10px;
+            right: 450px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(89, 124, 79, 1);
+            border-radius: 30px;
+            padding: 8px 20px;
+            width: 180px;
+            z-index: 10;
+        }
+        .currency-water .currency-icon { width: 30px;  }
+        .currency-seed .currency-icon { width: 40px;  }
+        .currency-gold .currency-icon { width: 50px;  }
+
+        .currency-amount {
+            font-size: 24px;
+            font-family: 'Rubik', sans-serif;
+            font-weight: bold;
+            color: #ffffff;
+            margin: 0;
+            line-height: 1;
+        }
+
+        .result-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -52%);
+            width: 80vw;
+            max-width: 1100px;
+            background: #F4E4C2;
+            border-radius: 40px;
+            border: 5px solid #854D25;
+            padding: 25px 30px 35px;
+            text-align: center;
+            backdrop-filter: blur(5px);
+            z-index: 10;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .result-title { font-size: 48px; font-weight: bold; margin-bottom: 15px; }
+        .result-message { font-size: 18px; color: #854D25; margin-bottom: 30px; }
+
+        .rewards-box {
+            background: #f5f0e8;
+            border-radius: 30px;
+            padding: 20px;
+            margin-bottom: 30px;
+            display: none;
+        }
+
+        .rewards-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #854D25;
+            margin-bottom: 15px;
+        }
+
+        .rewards-list {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+        }
+
+        .reward-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #854D25;
+        }
+
+        .reward-item img {
+            width: 40px;
+            height: 40px;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .btn {
+            background: #854D25;
+            color: white;
+            border: none;
+            border-radius: 40px;
+            padding: 12px 30px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+            background: #6b3d1f;
+        }
+
+        .win { color: #A8CD6B; }
+        .lose { color: #c65149; }
+    </style>
+</head>
+<body>
+    <!-- фон -->
+    <div class="game-bg" id="gameBg">
+        <img id="bgImage" src="" alt="Фон">
+    </div>
+
+    <div class="currency-seed">
+        <img src="images/MainScreen/семечка.svg" class="currency-icon">
+        <span class="currency-amount" id="seedAmount">0</span>
+    </div>
+    <div class="currency-water">
+        <img src="images/MainScreen/иконка капли.svg" class="currency-icon">
+        <span class="currency-amount" id="waterAmount">0</span>
+    </div>
+    <div class="currency-gold">
+        <img src="images/MainScreen/иконка пыльцы.svg" class="currency-icon">
+        <span class="currency-amount" id="goldAmount">0</span>
+    </div>
+
+    <div class="result-container" id="resultContainer">
+        <div class="result-icon" id="resultIcon"></div>
+        <div class="result-title" id="resultTitle"></div>
+        <div class="result-message" id="resultMessage"></div>
+
+        <div class="rewards-box" id="rewardsBox">
+            <div class="rewards-title">ПОЛУЧЕННЫЕ НАГРАДЫ</div>
+            <div class="rewards-list">
+                <div class="reward-item">
+                    <img src="images/MainScreen/иконка пыльцы.svg" alt="Пыльца">
+                    <span id="coinsReward">0</span>
+                </div>
+                <div class="reward-item">
+                    <img src="images/MainScreen/иконка капли.svg" alt="Капли">
+                    <span id="materialsReward">0</span>
+                </div>
+                <div class="reward-item">
+                    <img src="images/MainScreen/семечка.svg" alt="Семечки">
+                    <span id="gemsReward">0</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="buttons">
+            <button class="btn" id="againBtn">Повторить бой</button>
+            <button class="btn" id="mapBtn">На карту</button>
+        </div>
+    </div>
+
+    <script src="js/soundManager.js"></script>
+
+    <script type="module">
+        import api from './js/apiClient.js';
+
+        function waitForSoundManager(cb) {
+            if (window.soundManager && window.soundManager.sounds.music.game) {
+                cb(window.soundManager);
+                return;
+            }
+            const timer = setInterval(() => {
+                if (window.soundManager && window.soundManager.sounds.music.game) {
+                    clearInterval(timer);
+                    cb(window.soundManager);
+                }
+            }, 50);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            waitForSoundManager(sm => {
+                sm.loadSettings();
+                sm.playMusic('game');
+            });
+        });
+        const battleResult = JSON.parse(sessionStorage.getItem('battleResult') || '{}');
+        const container = document.getElementById('resultContainer');
+        const title = document.getElementById('resultTitle');
+        const message = document.getElementById('resultMessage');
+        const rewardsBox = document.getElementById('rewardsBox');
+
+        const stageId = battleResult.stageId;
+        const bgImage = document.getElementById('bgImage');
+        
+        //фон в зависимости от уровня
+        if (stageId === 5) {
+            bgImage.src = 'images/MapScreen/пустое темно.svg';
+        } else {
+            bgImage.src = 'images/MapScreen/пустое светло.svg';
+        }
+
+        //загрузка валюты с сервера
+        async function loadUserData() {
+            try {
+                const profile = await api.getProfile();
+                const user = profile.user;
+                
+                document.getElementById('goldAmount').textContent = user.coins || 0;
+                document.getElementById('waterAmount').textContent = user.leveling_materials || 0;
+                document.getElementById('seedAmount').textContent = user.gems || 0;
+                
+            } catch (error) {
+                console.error('Ошибка загрузки валюты', error);
+            }
+        }
+
+        //названия уровней
+        const STAGE_NAMES = {
+            1: 'Лесная опушка',
+            2: 'Тёмная чаща',
+            3: 'Болото туманов',
+            4: 'Пещера теней',
+            5: 'Логово босса'
+        };
+
+        //результат боя
+        if (battleResult.isWin) {
+            container.classList.add('win');
+            title.textContent = 'ПОБЕДА!';
+            message.textContent = `Вы одержали победу на уровне "${STAGE_NAMES[battleResult.stageId] || 'неизвестном'}"!`;
+            
+            if (battleResult.rewards && !battleResult.error) {
+                rewardsBox.style.display = 'block';
+                document.getElementById('coinsReward').textContent = battleResult.rewards.coins || 0;
+                document.getElementById('materialsReward').textContent = battleResult.rewards.leveling_materials || 0;
+                document.getElementById('gemsReward').textContent = battleResult.rewards.gems || 0;
+                
+            } else if (battleResult.error) {
+                message.textContent += ' Но произошла ошибка с наградами.';
+            }
+        } else {
+            container.classList.add('lose');
+            title.textContent = 'ПОРАЖЕНИЕ';
+            message.textContent = `Вы проиграли на уровне "${STAGE_NAMES[battleResult.stageId] || 'неизвестном'}"! Враги оказались сильнее.`;
+            
+            if (battleResult.rewards && battleResult.rewards.gems > 0) {
+                rewardsBox.style.display = 'block';
+                document.getElementById('coinsReward').textContent = battleResult.rewards.coins || 0;
+                document.getElementById('materialsReward').textContent = battleResult.rewards.leveling_materials || 0;
+                document.getElementById('gemsReward').textContent = battleResult.rewards.gems || 0;
+                message.textContent += ' Вы получили утешительную награду.';
+            }
+        }
+
+        //кнопка повторить бой
+        againBtn.onclick = () => {
+            waitForSoundManager(sm => sm.navigate(`select_team.html?stageId=${battleResult.stageId}`, 'big'));
+        };
+
+        //кнопка на карту
+        mapBtn.onclick = () => {
+            waitForSoundManager(sm => sm.navigate('map.html', 'big'));
+        };
+
+        //загружаем актуальную валюту
+        loadUserData();
+    </script>
+</body>
+</html>

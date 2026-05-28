@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Игра</title>
+    <style>
+
+
+       @import url('https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&family=Rubik:ital,wght@0,300..900;1,300..900&display=swap');
+       @import url('https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Rubik', sans-serif;
+            width: 100%;
+            min-height: 100vh;
+            overflow: hidden; 
+        }
+
+        /* фон */
+        .game-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: 0;
+            pointer-events: none; 
+        }
+
+        .game-bg img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; 
+            display: block;
+            pointer-events: none;
+        }
+
+        /* контент игры поверх фона */
+        .game-content {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            height: 100vh;
+            pointer-events: auto; 
+        }
+
+
+         /* стили для кнопок уровней */
+        .game-btn {
+            position: absolute;
+            width: 300px;
+            border: none;
+            background: none;
+            padding: 0;
+            transition: transform 0.3s ease;
+            pointer-events: auto;
+        }
+
+        .game-btn img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .game-btn:hover {
+            transform: scale(1.05);
+        }
+
+        /*#btn4 {
+            top: 80px;
+            right: 720px;
+            width: 180px;
+        }
+
+        #btn2 {
+            top: 410px;
+            left: 440px;
+            width: 180px;
+        }
+
+        #btn3 {
+            top: 575px;
+            right: 670px;
+            width: 180px;
+        }
+
+        #btn5 {
+            top: 135px;
+            right: 180px;
+            width: 220px;
+        }
+
+        #btn1 {
+            top: 140px;
+            left: 103px;
+            width: 180px;
+        }*/
+
+        .map-buttons {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .map-btn {
+            position: absolute;
+            width: 12%;
+            min-width: 100px;
+        }
+
+        #btn1 { top: 15%; left: 6%; }
+        #btn2 { top: 46%; left: 27%; }
+        #btn3 { top: 66%; left: 47%; }
+        #btn4 { top: 10%; left: 43%; }
+        #btn5 { top: 15%; right: 11%; width: 15%;}
+        
+        /* кнопка назад */
+        .back-btn {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            background: #854D25;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            padding: 10px 25px;
+            transition: transform 0.2s;
+            z-index: 20;
+            font-size: 22px;
+        }
+
+        .back-btn:hover {
+            transform: scale(1.05);
+            background: #6b3d1f;
+        }
+        
+        /* запрет выделения всех элементов на странице */
+        * {
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+        }
+
+    </style>
+</head>
+<body>
+    <!-- фон -->
+    <div class="game-bg">
+        <img src="images/MapScreen/фон карты.svg" alt="Фон игры" />
+    </div>
+
+    <button class="back-btn" id="backBtn">← На главный экран</button>
+
+    <div class="game-content">
+        <div class="map-buttons">
+            <button class="game-btn map-btn" id="btn1">
+                <img src="images/MapScreen/1ур.svg" />
+            </button>
+            <button class="game-btn map-btn" id="btn2">
+                <img src="images/MapScreen/2ур.svg" />
+            </button>
+            <button class="game-btn map-btn" id="btn3">
+                <img src="images/MapScreen/3ур.svg" />
+            </button>
+            <button class="game-btn map-btn" id="btn4">
+                <img src="images/MapScreen/4ур.svg" />
+            </button>
+            <button class="game-btn map-btn" id="btn5">
+                <img src="images/MapScreen/5ур.svg" />
+            </button>
+        </div>
+    </div>
+
+    <script src="js/soundManager.js"></script>
+
+    <script type="module">
+    import api from './js/apiClient.js';
+
+    function waitForSoundManager(cb) {
+        if (window.soundManager && window.soundManager.sounds.music.game) {
+            cb(window.soundManager);
+            return;
+        }
+        const timer = setInterval(() => {
+            if (window.soundManager && window.soundManager.sounds.music.game) {
+                clearInterval(timer);
+                cb(window.soundManager);
+            }
+        }, 50);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        waitForSoundManager(sm => {
+            sm.loadSettings();
+            sm.playMusic('game');
+        });
+    });
+
+    const btn1 = document.getElementById('btn1');
+    const btn2 = document.getElementById('btn2');
+    const btn3 = document.getElementById('btn3');
+    const btn4 = document.getElementById('btn4');
+    const btn5 = document.getElementById('btn5');
+
+    btn1.onclick    = () => waitForSoundManager(sm => sm.navigate('select_team.html?stageId=1',    'big'));
+    btn2.onclick    = () => waitForSoundManager(sm => sm.navigate('select_team.html?stageId=2',    'big'));
+    btn3.onclick    = () => waitForSoundManager(sm => sm.navigate('select_team.html?stageId=3',    'big'));
+    btn4.onclick    = () => waitForSoundManager(sm => sm.navigate('select_team.html?stageId=4',    'big'));
+    btn5.onclick    = () => waitForSoundManager(sm => sm.navigate('select_team.html?stageId=5',    'big'));
+
+    backBtn.onclick    = () => waitForSoundManager(sm => sm.navigate('game.html',    'big'));
+
+    function showToast(message) {
+        const toast = document.createElement('div');
+        toast.className = 'toast-notification toast-error';
+    
+        toast.innerHTML = `
+            <div class="toast-content">
+                <div class="toast-message">${message}</div>
+                <button class="toast-close">✕</button>
+            </div>
+            <div class="toast-progress">
+                <div class="toast-progress-bar"></div>
+            </div>
+        `;
+        document.body.appendChild(toast);
+        setTimeout(() => {
+            toast.classList.add('show');
+        }, 10);
+    
+        const closeToast = () => {
+            toast.classList.remove('show');
+            setTimeout(() => {
+                if (toast.parentNode) toast.remove();
+            }, 400);
+        };
+    
+        toast.querySelector('.toast-close').addEventListener('click', closeToast);
+    
+        toast.addEventListener('click', (e) => {
+            if (!e.target.closest('.toast-close')) {
+                closeToast();
+            }
+        });
+    
+        setTimeout(closeToast, 3000);
+    }
+
+    document.addEventListener('selectstart', (e) => e.preventDefault());
+    document.addEventListener('contextmenu', (e) => e.preventDefault());
+    document.addEventListener('dragstart', (e) => e.preventDefault());
+    document.addEventListener('copy', (e) => e.preventDefault());
+    document.addEventListener('cut', (e) => e.preventDefault());
+    document.addEventListener('paste', (e) => e.preventDefault());
+    document.addEventListener('keydown', function(e) {
+        if ((e.ctrlKey || e.metaKey) && ['s', 'c', 'x', 'v'].includes(e.key)) {
+            e.preventDefault();
+        }
+        if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && ['I', 'C', 'J'].includes(e.key)) || (e.ctrlKey && e.key === 'U')) {
+            e.preventDefault();
+        }
+    });
+    </script>
+</body>
+</html>

@@ -10,6 +10,8 @@
             margin: 0; padding: 0;
             box-sizing: border-box;
             user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
@@ -59,7 +61,7 @@
             pointer-events: auto;
         }
 
-        .clickable-area:hover  {
+        .clickable-area:hover  { 
             transform: scale(1.05); 
         }
         .clickable-area:active { 
@@ -70,7 +72,12 @@
             pointer-events: none;
         }
 
-        .clickable-area img { width: 100%; height: auto; display: block; }
+        .clickable-area img { 
+            width: 100%; 
+            height: auto; 
+            display: block; 
+        
+        }
 
         .cloud-area     { top: 70px;     left: 450px;   width: 300px; }
         .scarecrow-area { bottom: 350px; right: 50px;    width: 200px; }
@@ -112,11 +119,7 @@
 
         .rain-overlay::after {
             content: '';
-            position: absolute; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 100%;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: repeating-linear-gradient(
                 170deg,
                 transparent 0px, transparent 4px,
@@ -132,10 +135,32 @@
             to   { background-position: 50px 120px; }
         }
 
+        /* молния */
+        .lightning-flash {
+            position: fixed; 
+            top: 0; 
+            left: 0;
+            width: 100%; 
+            height: 100vh;
+            background: rgba(200, 220, 255, 0.6);
+            z-index: 200; pointer-events: none;
+            opacity: 0;
+        }
+        .lightning-flash.active {
+            animation: lightning 0.4s ease-out forwards;
+        }
+        @keyframes lightning {
+            0%   { opacity: 0.8; }
+            30%  { opacity: 0.2; }
+            50%  { opacity: 0.7; }
+            100% { opacity: 0;   }
+        }
 
         /* награда */
         .reward-notification {
-            position: fixed; top: 30%; left: 50%;
+            position: fixed; 
+            top: 30%; 
+            left: 50%;
             transform: translateX(-50%) translateY(-10px) scale(0.9);
             background: #F4E4C2;
             border: 3px solid #854D25;
@@ -152,8 +177,7 @@
             transition: opacity 0.3s ease, transform 0.3s ease;
         }
         .reward-notification.show {
-            opacity: 1; 
-            transform: translateX(-50%) translateY(0) scale(1);
+            opacity: 1; transform: translateX(-50%) translateY(0) scale(1);
         }
 
         /* кнопки */
@@ -187,10 +211,7 @@
             transition: transform 0.3s ease;
         }
 
-        .close-btn:hover { 
-            transform: scale(1.1); 
-        }
-
+        .close-btn:hover { transform: scale(1.1); }
         .close-btn img { 
             width: 100%; 
             height: auto; 
@@ -272,28 +293,24 @@
         .toast-notification.show  { 
             transform: translateX(0); 
         }
-        
         .toast-notification:hover { 
             transform: translateX(-5px); 
         }
-        
         .toast-content { 
             display: flex; 
             align-items: center; 
             padding: 15px 20px; 
-            gap: 12px; }
-        
+            gap: 12px; 
+        }
         .toast-icon    { 
             font-size: 24px; 
             flex-shrink: 0; 
             animation: shake 0.5s ease; 
         }
-
         .toast-message { 
             flex: 1; 
             line-height: 1.4; 
         }
-        
         .toast-close {
             background: none; 
             border: none; 
@@ -306,18 +323,17 @@
             align-items: center; 
             justify-content: center;
         }
-
         .toast-close:hover { 
-            background: rgba(139, 90, 43, 0.5);
+            background: rgba(139, 90, 43, 0.5); 
         }
         .toast-progress { 
             height: 4px; 
             background: #705e3d; 
             border-radius: 0 0 12px 12px; 
             overflow: hidden; }
-        
-            .toast-progress-bar {
-            height: 100%; width: 100%;
+        .toast-progress-bar {
+            height: 100%; 
+            width: 100%;
             background: linear-gradient(90deg, #8bc58b, #88ff88);
             animation: progress 3s linear forwards;
         }
@@ -336,6 +352,7 @@
     </div>
 
     <div id="rainOverlay"        class="rain-overlay"></div>
+    <div id="lightningFlash"     class="lightning-flash"></div>
     <div id="rewardNotification" class="reward-notification"></div>
 
     <div class="interactive-elements">
@@ -433,6 +450,12 @@
         setTimeout(() => el.classList.remove('show'), 2000);
     }
 
+    function triggerLightning() {
+        const flash = document.getElementById('lightningFlash');
+        flash.classList.add('active');
+        setTimeout(() => flash.classList.remove('active'), 500);
+    }
+
     function getMoscowNow() {
         return new Date(Date.now() + 3 * 60 * 60 * 1000);
     }
@@ -522,6 +545,7 @@
             await api.claimInteractive('cloud');
              await api.updateQuest('interactions', 1);
             await loadInteractiveState();
+            triggerLightning();
             showReward('+200', 'gems');
             await loadUserData();
         } catch (e) {

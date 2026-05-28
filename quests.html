@@ -193,14 +193,12 @@
 
 
         /* кнопка закрытия */
+        /* крестик */
         .close-btn {
             position: absolute;
-            top: 107px;
-            right: 357px;
+            top: 20px;
+            right: 20px;
             width: 65px;
-            cursor: pointer;
-            transition: transform 0.3s ease;
-            z-index: 20;
         }
 
         .close-btn:hover {
@@ -220,13 +218,13 @@
         <img src="images/MainScreen/общий фон.svg" alt="Фон">
     </div>
 
-    <div class="close-btn" id="closeBtn">
-            <img src="images/MainScreen/Book/крестик.svg" alt="Закрыть" />
-        </div>
 
 
     <div class="game-content">
         <div class="quests-container">
+            <div class="close-btn" id="closeBtn">
+                <img src="images/MainScreen/Book/крестик.svg" alt="Закрыть" />
+            </div>
             <div class="quests-title">ЕЖЕДНЕВНЫЕ КВЕСТЫ</div>
             
             <div class="timer-box">
@@ -368,7 +366,7 @@
     if (closeBtn) {
         closeBtn.onclick = () => waitForSoundManager(sm => sm.navigate('game.html', 'small'));
     }
-    
+
     loadQuests();
     updateResetTimer();
     setInterval(updateResetTimer, 1000);

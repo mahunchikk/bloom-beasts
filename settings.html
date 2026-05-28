@@ -164,10 +164,14 @@
             background: #6b3d1f;
         }
 
-
-
-
         /* крестик */
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 65px;
+        }
+        /*  
         .close-btn {
             position: absolute;
             top: 145px;
@@ -175,8 +179,8 @@
             width: 65px;
             cursor: pointer;
             transition: transform 0.3s ease;
-            z-index: 20;
-        }
+            
+        }*/
 
         .close-btn:hover {
             transform: scale(1.1);
@@ -196,15 +200,16 @@
         <img id="bgImage" src="images/MainScreen/общий фон.svg" alt="Фон">
     </div>
     
-    <!-- крестик -->
-    <div class="close-btn" id="closeBtn">
-            <img src="images/MainScreen/Book/крестик.svg" alt="Закрыть" />
-        </div>
+    
 
 
     <!-- форма настроек -->
     <div class="settings-container" id="settingsContainer">
         <div class="settings-title">НАСТРОЙКИ</div>
+        <!-- крестик -->
+        <div class="close-btn" id="closeBtn">
+            <img src="images/MainScreen/Book/крестик.svg" alt="Закрыть" />
+        </div>
 
         
         <!-- ползунок громкости кнопок -->
@@ -314,7 +319,7 @@
     document.addEventListener('contextmenu', e => e.preventDefault());
     document.addEventListener('selectstart', e => e.preventDefault());
     document.addEventListener('dragstart',   e => e.preventDefault());
-    
+
     </script>
 </body>
 </html>

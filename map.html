@@ -73,7 +73,7 @@
             transform: scale(1.05);
         }
 
-        #btn4 {
+        /*#btn4 {
             top: 80px;
             right: 720px;
             width: 180px;
@@ -101,7 +101,25 @@
             top: 140px;
             left: 103px;
             width: 180px;
+        }*/
+
+        .map-buttons {
+            position: relative;
+            width: 100%;
+            height: 100%;
         }
+
+        .map-btn {
+            position: absolute;
+            width: 12%;
+            min-width: 100px;
+        }
+
+        #btn1 { top: 15%; left: 6%; }
+        #btn2 { top: 46%; left: 27%; }
+        #btn3 { top: 66%; left: 47%; }
+        #btn4 { top: 10%; left: 43%; }
+        #btn5 { top: 15%; right: 11%; width: 15%;}
         
         /* кнопка назад */
         .back-btn {
@@ -147,21 +165,23 @@
     <button class="back-btn" id="backBtn">← На главный экран</button>
 
     <div class="game-content">
-        <button class="game-btn" id="btn1">
-            <img src="images/MapScreen/1ур.svg" alt="Кнопка 1" />
-        </button>
-        <button class="game-btn" id="btn2">
-            <img src="images/MapScreen/2ур.svg" alt="Кнопка 2" />
-        </button>
-        <button class="game-btn" id="btn3">
-            <img src="images/MapScreen/3ур.svg" alt="Кнопка 3" />
-        </button>
-        <button class="game-btn" id="btn4">
-            <img src="images/MapScreen/4ур.svg" alt="Кнопка 4" />
-        </button>
-        <button class="game-btn" id="btn5">
-            <img src="images/MapScreen/5ур.svg" alt="Кнопка 5" />
-        </button>
+        <div class="map-buttons">
+            <button class="game-btn map-btn" id="btn1">
+                <img src="images/MapScreen/1ур.svg" />
+            </button>
+            <button class="game-btn map-btn" id="btn2">
+                <img src="images/MapScreen/2ур.svg" />
+            </button>
+            <button class="game-btn map-btn" id="btn3">
+                <img src="images/MapScreen/3ур.svg" />
+            </button>
+            <button class="game-btn map-btn" id="btn4">
+                <img src="images/MapScreen/4ур.svg" />
+            </button>
+            <button class="game-btn map-btn" id="btn5">
+                <img src="images/MapScreen/5ур.svg" />
+            </button>
+        </div>
     </div>
 
     <script src="js/soundManager.js"></script>

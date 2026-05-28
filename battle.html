@@ -85,28 +85,44 @@
         .enemy-2 { right: 6%;  top: 65%; transform: translateY(-50%); }
         .enemy-3 { right: 28%; top: 63%; transform: translateY(-50%); }
 
-        #skillImg1, #skillImg2, #skillImg3 {
-            position: fixed; bottom: 1px;
-            width: 127px; height: 127px;
-            cursor: pointer; z-index: 30;
+        /* Контейнер для кнопок способностей */
+        .skills-container {
+            position: fixed;
+            bottom: 1px;
+            left: 8.5%;
+            display: flex;
+            gap: 115px;
+            z-index: 30;
+        }
+
+        /* стили для каждой кнопки способности */
+        .skill-img {
+            width: 127px;
+            height: 127px;
+            cursor: pointer;
             transition: all 0.2s;
             border: 3px solid #854D25;
             background: transparent;
-            object-fit: contain; border-radius: 20px;
-        }
-        #skillImg1 { left: 134px; }
-        #skillImg2 { left: 375px; }
-        #skillImg3 { left: 620px; }
+            object-fit: contain;
+            border-radius: 20px;
+        }   
 
-        #skillImg1.ready:hover,
-        #skillImg2.ready:hover,
-        #skillImg3.ready:hover { transform: scale(1.05); }
-
-        #skillImg1.disabled,
-        #skillImg2.disabled,
-        #skillImg3.disabled {
-            opacity: 0.4; filter: grayscale(1); cursor: not-allowed;
+        .skill-img:hover {
+            transform: scale(1.05);
         }
+
+        .skill-img.disabled {
+            opacity: 0.4;
+            filter: grayscale(1);
+            cursor: not-allowed;
+        }
+
+        .skill-img.ready {
+            opacity: 1;
+            filter: none;
+        }
+
+        
 
         .skill-role-badge {
             position: fixed; bottom: 148px;
@@ -161,11 +177,13 @@
     <button class="back-btn" id="backBtn">← На карту</button>
     <div class="characters-container" id="charactersContainer"></div>
 
-    <img id="skillImg1" style="display:none;">
-    <img id="skillImg2" style="display:none;">
-    <img id="skillImg3" style="display:none;">
+    <div class="skills-container">
+        <img id="skillImg1" class="skill-img" style="display:none;">
+        <img id="skillImg2" class="skill-img" style="display:none;">
+        <img id="skillImg3" class="skill-img" style="display:none;">
+    </div>
 
-    
+
     <script src="js/soundManager.js"></script>
 
     <script type="module">

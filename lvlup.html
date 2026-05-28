@@ -11,6 +11,8 @@
             padding: 0;
             box-sizing: border-box;
             user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
@@ -40,7 +42,7 @@
             pointer-events: none;
         }
 
-        /* Контейнер книжки */
+        /* контейнер книжки */
         .book-container {
             position: fixed;
             top: 50%;
@@ -54,7 +56,7 @@
             align-items: center;
         }
 
-        /* Изображение книжки */
+        /* изображение книжки */
         .book-image {
             width: 100%;
             height: auto;
@@ -62,7 +64,6 @@
             object-fit: contain;
         }
 
-        /* 3. МЕНЮ ПРОКАЧКИ (готовая картинка поверх книжки) */
         .menu-image {
             position: absolute;
             top: 50%;
@@ -74,7 +75,6 @@
             pointer-events: none;
         }
 
-        /* 4. ИНТЕРАКТИВНЫЕ ЭЛЕМЕНТЫ ПОВЕРХ МЕНЮ */
         .upgrade-overlay {
             position: absolute;
             top: 0;
@@ -92,7 +92,7 @@
             pointer-events: auto;
         }
 
-        /* Строка прокачки */
+        /* строка прокачки */
         .upgrade-row {
             position: absolute;
             display: flex;
@@ -111,18 +111,17 @@
         }
 
         .star-icon {
-            width: 60px;          /* ← размер звезды */
+            width: 60px;  
             height: 60px;
             object-fit: contain;
         }
 
-        /* Стрелка созвездия */
+        /* стрелка созвездия */
         .const-arrow {
             position: absolute;
             top: 433px;
-            left: 792px;    /* ← подбери нужное значение */
+            left: 792px;    
             width: 60px;
-            cursor: pointer;
             transition: transform 0.2s;
         }
 
@@ -136,10 +135,9 @@
             display: block;
         }
 
-        /* Контейнер для прогресс-бара со стрелкой внутри */
         .progress-wrapper {
             position: relative;
-            width: 505px;           /* ширина прогресс-бара */
+            width: 505px;      
             left: -240px;
         }
 
@@ -159,14 +157,12 @@
             transition: width 0.3s;
         }
 
-        /* Стрелка внутри прогресс-бара, прижата к правому краю */
         .upgrade-arrow {
             position: absolute;
-            right: -10px;            /* отступ от правого края */
+            right: -10px;          
             top: 50%;
             transform: translateY(-50%);
             width: 60px;
-            cursor: pointer;
             transition: transform 0.2s;
             z-index: 5;
         }
@@ -181,7 +177,6 @@
             display: block;
         }
 
-        /* Позиционирование строк */
         .row-level {
             top: 199px;
             left: 578px;
@@ -192,13 +187,12 @@
             left: 578px;
         }
 
-        /* Кнопка закрытия */
+        /* крестик */
         .close-btn {
             position: absolute;
             top: 80px;
             right: 130px;
             width: 65px;
-            cursor: pointer;
             transition: transform 0.3s ease;
             z-index: 2000;
         }
@@ -213,6 +207,7 @@
             display: block;
         }
 
+         /* кнопка назад */
         .back-btn {
             position: fixed;
             bottom: 30px;
@@ -222,7 +217,6 @@
             border: none;
             border-radius: 30px;
             padding: 10px 25px;
-            cursor: pointer;
             transition: transform 0.2s;
             z-index: 20;
             font-size: 22px;

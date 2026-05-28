@@ -7,30 +7,45 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;700;900&display=swap');
 
-        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
 
         body {
             font-family: 'Rubik', sans-serif;
-            width: 100%; height: 100vh;
-            overflow: hidden; position: relative;
+            width: 100%;
+            min-height: 100vh;
+            overflow: hidden;
         }
 
         .battle-bg {
-            position: fixed; top: 0; left: 0;
-            width: 100%; height: 100%;
-            object-fit: cover; z-index: 0;
+            position: fixed; 
+            top: 0; 
+            left: 0;
+            width: 100%; 
+            height: 100%;
+            object-fit: cover; 
+            z-index: 0;
         }
 
         .characters-container {
-            position: fixed; top: 0; left: 0;
-            width: 100%; height: 100%;
-            z-index: 10; pointer-events: none;
+            position: fixed; 
+            top: 0; 
+            left: 0;
+            width: 100%; 
+            height: 100%;
+            z-index: 10; 
+            pointer-events: none;
         }
 
         .character {
             position: absolute;
             pointer-events: auto;
-            cursor: pointer;
             width: 350px;
             height: 350px;
         }
@@ -99,7 +114,6 @@
         .skill-img {
             width: 127px;
             height: 127px;
-            cursor: pointer;
             transition: all 0.2s;
             border: 3px solid #854D25;
             background: transparent;
@@ -114,7 +128,6 @@
         .skill-img.disabled {
             opacity: 0.4;
             filter: grayscale(1);
-            cursor: not-allowed;
         }
 
         .skill-img.ready {
@@ -155,11 +168,17 @@
         }
 
         .back-btn {
-            position: fixed; bottom: 30px; right: 30px;
-            background: #854D25; color: white;
-            border: none; border-radius: 30px;
-            padding: 10px 25px; cursor: pointer;
-            transition: transform 0.2s; z-index: 20; font-size: 22px;
+            position: fixed; 
+            bottom: 30px; 
+            right: 30px;
+            background: #854D25; 
+            color: white;
+            border: none; 
+            border-radius: 30px;
+            padding: 10px 25px; 
+            transition: transform 0.2s; 
+            z-index: 20; 
+            font-size: 22px;
         }
         .back-btn:hover { transform: scale(1.05); background: #6b3d1f; }
 

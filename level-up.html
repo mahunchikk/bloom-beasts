@@ -11,6 +11,8 @@
             padding: 0;
             box-sizing: border-box;
             user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
@@ -36,7 +38,8 @@
 
         .book-container {
             position: fixed;
-            top: 50%; left: 50%;
+            top: 50%; 
+            left: 50%;
             transform: translate(-50%, -52%);
             width: 90vw;
             max-width: 1200px;
@@ -53,7 +56,8 @@
 
         .upgrade-form-img {
             position: absolute;
-            top: 55%; left: 50%;
+            top: 55%; 
+            left: 50%;
             transform: translate(-50%, -50%);
             width: 50%; height: auto;
             z-index: 105;
@@ -62,7 +66,8 @@
 
         .interactive-panel {
             position: absolute;
-            top: 0; left: 0;
+            top: 0; 
+            left: 0;
             width: 100%; height: 100%;
             z-index: 200;
             pointer-events: none;
@@ -70,13 +75,15 @@
 
         .controls {
             position: absolute;
-            width: 100%; height: 100%;
+            width: 100%; 
+            height: 100%;
             pointer-events: auto;
         }
 
         .level-container {
             position: absolute;
-            top: 238px; left: 587px;
+            top: 238px; 
+            left: 587px;
             transform: translateX(-50%);
             width: 80%;
             display: flex;
@@ -88,21 +95,28 @@
             color: #854D25;
         }
 
-        .current-level { position: relative; left: 0; }
-        .target-level  { position: relative; right: 0; }
+        .current-level { 
+            position: relative; 
+            left: 0; }
+        .target-level  { 
+            position: relative; 
+            right: 0; }
 
         .progress-bar-bg {
             position: absolute;
-            top: 288px; left: 50%;
+            top: 288px; 
+            left: 50%;
             transform: translateX(-50%);
-            width: 45%; height: 54px;
+            width: 45%; 
+            height: 54px;
             background: #C1A481;
             border-radius: 20px;
             overflow: hidden;
         }
 
         .progress-fill {
-            height: 100%; width: 0%;
+            height: 100%; 
+            width: 0%;
             background: #4CAF50;
             border-radius: 20px;
             transition: width 0.3s;
@@ -110,23 +124,28 @@
 
         .level-buttons {
             position: absolute;
-            top: 397px; left: 60%;
+            top: 397px; 
+            left: 60%;
             transform: translateX(-50%);
             display: flex;
             gap: 20px;
         }
 
         .level-btn-img {
-            width: 55px; height: 55px;
+            width: 55px; 
+            height: 55px;
             cursor: pointer;
             transition: transform 0.2s;
         }
 
-        .level-btn-img:hover { transform: scale(1.05); }
+        .level-btn-img:hover { 
+            transform: scale(1.05); 
+        }
 
         .currency-panel-cost {
             position: absolute;
-            top: 397px; left: 477px;
+            top: 397px; 
+            left: 477px;
             transform: translateX(-50%);
             display: flex;
             align-items: center;
@@ -139,14 +158,17 @@
             white-space: nowrap;
         }
 
-        .cost-slash { font-size: 24px; margin: 0 6px; }
+        .cost-slash { 
+            font-size: 24px; 
+            margin: 0 6px; 
+        }
 
         .upgrade-confirm-img {
             position: absolute;
-            bottom: 82px; left: 50%;
+            bottom: 82px; 
+            left: 50%;
             transform: translateX(-50%);
             width: 265px;
-            cursor: pointer;
             transition: transform 0.2s, opacity 0.3s ease, filter 0.3s ease;
             z-index: 2000;
         }
@@ -157,28 +179,32 @@
 
         .close-form-btn {
             position: absolute;
-            top: 80px; right: 130px;
+            top: 80px; 
+            right: 130px;
             width: 65px;
-            cursor: pointer;
             transition: transform 0.3s ease;
             z-index: 2000;
         }
 
-        .close-form-btn:hover { transform: scale(1.1); }
+        .close-form-btn:hover { 
+            transform: scale(1.1); 
+        }
 
         .close-form-btn img {
-            width: 100%; height: auto; display: block;
+            width: 100%;
+            height: auto; 
+            display: block;
         }
 
         .back-btn {
             position: fixed;
-            bottom: 30px; left: 30px;
+            bottom: 30px; 
+            left: 30px;
             background: #854D25;
             color: white;
             border: none;
             border-radius: 30px;
             padding: 10px 25px;
-            cursor: pointer;
             transition: transform 0.2s;
             z-index: 20;
             font-size: 22px;
@@ -239,7 +265,7 @@
     </div>
 
     <script src="js/soundManager.js"></script>
-    
+
     <script type="module">
     import api from './js/apiClient.js';
 

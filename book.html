@@ -12,6 +12,9 @@
         margin: 0;
         padding: 0;
         box-sizing: border-box;
+        user-select: none;
+        -webkit-user-select: none;
+        -webkit-tap-highlight-color: transparent;
     }
 
     body {
@@ -83,7 +86,6 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        cursor: pointer;
         transition: transform 0.3s ease;
         background: rgba(255, 255, 255, 0.9);
         border-radius: 20px;
@@ -168,7 +170,6 @@
 
     .inform-btn {
         width: 35px;
-        cursor: pointer;
         transition: transform 0.3s ease;
     }
 
@@ -200,7 +201,6 @@
             border: none;
             border-radius: 30px;
             padding: 10px 25px;
-            cursor: default;
             transition: transform 0.2s;
             z-index: 20;
             font-size: 22px;
@@ -221,7 +221,6 @@
         color: white;
         border: none;
         border-radius: 25px;
-        cursor: pointer;
         font-size: 22px;
         transition: transform 0.2s ease;
     }
@@ -237,7 +236,6 @@
         top: 80px;
         right: 130px;
         width: 65px;
-        cursor: pointer;
         transition: transform 0.3s ease;
         z-index: 20;
     }
@@ -286,7 +284,6 @@
         border-left: 4px solid #705e3d;
         transform: translateX(120%);
         transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-        cursor: pointer;
     }   
 
     .toast-notification.show {
@@ -321,7 +318,6 @@
         border: none;
         color: #f5e6d3;
         font-size: 20px;
-        cursor: pointer;
         padding: 0;
         width: 24px;
         height: 24px;
@@ -401,7 +397,6 @@
         color: white;
         border: none;
         border-radius: 25px;
-        cursor: pointer;
         font-size: 16px;
         transition: transform 0.2s ease;
     }
@@ -476,7 +471,6 @@
 
     .skill-question {
         width: 45px;
-        cursor: pointer;
         transition: transform 0.2s;
     }
 
@@ -494,7 +488,6 @@
         display: block;
         width: 70%;
         margin: 0 auto;
-        cursor: pointer;
         transition: transform 0.2s;
         border: none;
         background: none;
@@ -541,7 +534,6 @@
         color: white;
         border: none;
         border-radius: 25px;
-        cursor: pointer;
         font-size: 16px;
         transition: transform 0.2s ease;
     }
@@ -561,7 +553,6 @@
         color: white;
         border: none;
         border-radius: 25px;
-        cursor: pointer;
         font-size: 22px;
         transition: transform 0.2s ease;
     }

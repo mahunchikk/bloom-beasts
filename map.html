@@ -126,7 +126,7 @@
 
 
 
-        /* Запрет выделения всех элементов на странице */
+        /* запрет выделения всех элементов на странице */
         * {
             user-select: none;
             -webkit-user-select: none;
@@ -221,7 +221,6 @@
             toast.classList.add('show');
         }, 10);
     
-        // Функция закрытия
         const closeToast = () => {
             toast.classList.remove('show');
             setTimeout(() => {
@@ -229,17 +228,14 @@
             }, 400);
         };
     
-        // Закрытие по клику на крестик
         toast.querySelector('.toast-close').addEventListener('click', closeToast);
     
-        // Закрытие по клику на само уведомление
         toast.addEventListener('click', (e) => {
             if (!e.target.closest('.toast-close')) {
                 closeToast();
             }
         });
     
-        // Автоматическое закрытие через 3 секунды
         setTimeout(closeToast, 3000);
     }
 

@@ -376,7 +376,7 @@
             seedAmount.textContent = user.gems || 0;
             waterAmount.textContent = user.leveling_materials || 0;
             goldAmount.textContent = user.coins || 0;
-            console.log('💰 Баланс:', { gems: user.gems, water: user.leveling_materials, coins: user.coins });
+            console.log('Баланс:', { gems: user.gems, water: user.leveling_materials, coins: user.coins });
             return user;
         } catch (error) {
             console.error('Ошибка загрузки:', error);
@@ -573,13 +573,11 @@
                 
             await playAnimations(result.animationType);
                 
-            // Потом показываем результат
             const screen = document.getElementById('resultScreen');
             const grid = document.getElementById('rewardsGrid');
             grid.innerHTML = formatRewardCard(result);
             showResult(1);
-                
-                // Обновляем всё
+            
             await api.updateQuest('gacha_spins', 1);
             await loadUserData();
             await updateButtonsState();
@@ -686,7 +684,7 @@
     async function init() {
         await loadUserData();
         await updateButtonsState();
-        console.log('🎮 Страница гачи загружена');
+        console.log('Страница гачи загружена');
     }
         
     init();

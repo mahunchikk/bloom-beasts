@@ -1,6 +1,6 @@
 const API_URL = window.location.hostname === 'localhost'
-    ? 'http://localhost:3001/api'                  // Когда игра запущена на вашем ПК
-    : 'https://ваш-будущий-сервер.onrender.com/api'; // Когда игра в интернете
+    ? 'http://localhost:3001/api'                  
+    : 'https://bloom-beasts.onrender.com/api'; 
 
 class ApiClient {
     constructor() {

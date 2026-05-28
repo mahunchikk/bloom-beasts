@@ -374,7 +374,6 @@
     const urlParams = new URLSearchParams(window.location.search);
     const STAGE_ID = parseInt(urlParams.get('stageId'));
 
-    // Установка фона в зависимости от уровня
     const bgImage = document.getElementById('bgImage');
     if (STAGE_ID === 5) {
         bgImage.src = 'images/MapScreen/пустое темно.svg';
@@ -403,9 +402,9 @@
             const chars = await api.getUserCharacters();
             allCharacters = chars.sort((a, b) => {
                 if (b.level !== a.level) {
-                return b.level - a.level;  // сначала высокий уровень
+                return b.level - a.level;  //сначала высокий уровень
                 }
-            // при равном уровне — по алфавиту (А → Я)
+                //при равном уровне по алфавиту 
                 return a.Character.name.localeCompare(b.Character.name);
             });
             renderCharacters();
